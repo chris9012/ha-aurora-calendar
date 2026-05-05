@@ -21,7 +21,7 @@ Then add the card to any dashboard from **Add Card → Aurora Calendar**.
 
 ## Requirements
 
-- Home Assistant **2024.1** or later
+- Home Assistant **2026.3** or later
 - One or more calendar entities already configured (Google Calendar, Local Calendar, CalDAV, etc.)
 
 ## Support development

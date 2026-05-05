@@ -22,7 +22,7 @@ A feature-rich family calendar for Home Assistant — bundled as a single integr
 
 ## Requirements
 
-- Home Assistant **2024.1** or later
+- Home Assistant **2026.3** or later (uses the Brands Proxy API for the integration icon)
 - One or more calendar entities already configured in HA (Google Calendar, Local Calendar, CalDAV, etc.)
 
 ---

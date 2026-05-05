@@ -84,6 +84,18 @@ export interface PersonInfo {
   person_entity_id?: string;
 }
 
+export interface CreateEventDraft {
+  calendarEntity: string;
+  title: string;
+  allDay: boolean;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  description: string;
+}
+
 export interface CalendarEvent {
   id: string;
   title: string;

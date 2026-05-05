@@ -144,6 +144,28 @@ npm run dev
 
 The compiled output goes to `custom_components/aurora_calendar/aurora-calendar-card.js` and is auto-served by the integration when installed.
 
+### Tests
+
+Two suites, both fast:
+
+```bash
+# Frontend (TypeScript helpers — Vitest)
+npm test
+
+# Backend (Python integration — pytest, requires Python 3.12+)
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements_test.txt
+pytest tests/backend/
+```
+
+What's covered:
+
+- **Frontend** — date/time helpers, draft validation (`draftError`), draft normalization (auto-fix end date), HH:MM arithmetic
+- **Backend** — config flow + options flow validation, single-instance abort, entity-ID migration (drifted slugs auto-rename), coordinator persons deduplication
+
+Run before opening a PR.
+
 ---
 
 ## Support

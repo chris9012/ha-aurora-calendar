@@ -1,0 +1,8 @@
+# Backend test dependencies.
+#
+# pytest-homeassistant-custom-component requires Python 3.12+ (matches the HA
+# minimum). On older Pythons, only the pure-helper tests in tests/backend/
+# can run — the config-flow and migration tests need a real HA test harness.
+pytest>=7.0
+pytest-asyncio>=0.21
+pytest-homeassistant-custom-component>=0.12; python_version >= "3.12"

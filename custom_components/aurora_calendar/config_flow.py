@@ -174,11 +174,7 @@ class _CalendarFlowMixin:
                 vol.Schema(
                     {
                         vol.Optional("calendar_entity", default=entity_id): EntitySelector(
-                            EntitySelectorConfig(
-                                domain="calendar",
-                                multiple=False,
-                                read_only=True,
-                            )
+                            EntitySelectorConfig(domain="calendar", multiple=False)
                         ),
                         vol.Optional("display_name", default=default_person): TextSelector(
                             TextSelectorConfig(type=TextSelectorType.TEXT)

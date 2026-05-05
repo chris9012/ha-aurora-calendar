@@ -5,6 +5,7 @@ import type {
   AuroraCalendarConfig,
   CalendarEvent,
   CalendarInfo,
+  CreateEventDraft,
   HassConnection,
   HassStateChangedEvent,
   HassUnsubscribe,
@@ -18,6 +19,10 @@ import type {
   WeekStart,
 } from "./types.js";
 import { CONFIG_DEFAULTS } from "./types.js";
+import {
+  draftError as draftErrorFn,
+  normalizeDraft as normalizeDraftFn,
+} from "./draft-utils.js";
 import {
   VIEW_MODES,
   getDateRange,
@@ -44,18 +49,6 @@ const VIEW_ICONS: Record<ViewMode, string> = {
 const CALENDAR_FEATURE_CREATE_EVENT = 1;
 const CALENDAR_FEATURE_DELETE_EVENT = 2;
 const CALENDAR_FEATURE_UPDATE_EVENT = 4;
-
-interface CreateEventDraft {
-  calendarEntity: string;
-  title: string;
-  allDay: boolean;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-  location: string;
-  description: string;
-}
 
 type DialogKind = "event" | "create" | "edit";
 
@@ -690,12 +683,12 @@ export class AuroraCalendarCard extends LitElement {
     return this._dateInputValue(this._addDays(date, days));
   }
 
-  private _normalizeAllDayDraft(draft: CreateEventDraft): CreateEventDraft {
-    if (!draft.allDay || !draft.startDate) return draft;
-    if (!draft.endDate || draft.endDate < draft.startDate) {
-      return { ...draft, endDate: draft.startDate };
-    }
-    return draft;
+  private _normalizeDraft(draft: CreateEventDraft): CreateEventDraft {
+    return normalizeDraftFn(draft);
+  }
+
+  private _draftError(draft: CreateEventDraft): string {
+    return draftErrorFn(draft);
   }
 
   private _updateDraft(
@@ -704,7 +697,7 @@ export class AuroraCalendarCard extends LitElement {
     value: string | boolean
   ): CreateEventDraft {
     const next = { ...draft, [field]: value };
-    return this._normalizeAllDayDraft(next);
+    return this._normalizeDraft(next);
   }
 
   private _updateCreateDraft(field: keyof CreateEventDraft, value: string | boolean): void {
@@ -808,7 +801,7 @@ export class AuroraCalendarCard extends LitElement {
     const endDateInput = event.all_day
       ? this._addDaysToDateInput(this._dateInputValue(end), -1)
       : this._dateInputValue(end);
-    this._editDraft = this._normalizeAllDayDraft({
+    this._editDraft = this._normalizeDraft({
       calendarEntity: event.calendarEntity,
       title: event.title,
       allDay: event.all_day,
@@ -1159,6 +1152,7 @@ export class AuroraCalendarCard extends LitElement {
     const selected = this._selectedEvent;
     if (!this._editDialogOpen || !this._editDraft || !selected) return nothing;
     const draft = this._editDraft;
+    const draftError = this._draftError(draft);
 
     return html`
       <div class="event-dialog-backdrop ${this._closingDialog === "edit" ? "closing" : ""}" @click=${this._closeEditDialog}>
@@ -1280,7 +1274,9 @@ export class AuroraCalendarCard extends LitElement {
               ></textarea>
             </label>
 
-            ${this._eventActionError ? html`
+            ${draftError ? html`
+              <div class="event-action-error">${draftError}</div>
+            ` : this._eventActionError ? html`
               <div class="event-action-error">${this._eventActionError}</div>
             ` : nothing}
 
@@ -1288,7 +1284,7 @@ export class AuroraCalendarCard extends LitElement {
               <button type="button" class="secondary-action" @click=${this._closeEditDialog}>
                 ${t(locale, "cancel")}
               </button>
-              <button type="submit" class="primary-action" ?disabled=${this._savingEvent}>
+              <button type="submit" class="primary-action" ?disabled=${this._savingEvent || !!draftError}>
                 <ha-icon icon="mdi:content-save-outline"></ha-icon>
                 <span>${this._savingEvent ? t(locale, "loading") : t(locale, "updateEvent")}</span>
               </button>
@@ -1304,6 +1300,7 @@ export class AuroraCalendarCard extends LitElement {
     const draft = this._createDraft;
     const writableCalendars = this._writableCalendars;
     const canCreate = writableCalendars.length > 0;
+    const draftError = this._draftError(draft);
 
     return html`
       <div class="event-dialog-backdrop ${this._closingDialog === "create" ? "closing" : ""}" @click=${this._closeCreateDialog}>
@@ -1480,7 +1477,9 @@ export class AuroraCalendarCard extends LitElement {
               ></textarea>
             </label>
 
-            ${this._eventActionError ? html`
+            ${draftError ? html`
+              <div class="event-action-error">${draftError}</div>
+            ` : this._eventActionError ? html`
               <div class="event-action-error">${this._eventActionError}</div>
             ` : nothing}
 
@@ -1488,7 +1487,7 @@ export class AuroraCalendarCard extends LitElement {
               <button type="button" class="secondary-action" @click=${this._closeCreateDialog}>
                 ${t(locale, "cancel")}
               </button>
-              <button type="submit" class="primary-action" ?disabled=${!canCreate || this._savingEvent}>
+              <button type="submit" class="primary-action" ?disabled=${!canCreate || this._savingEvent || !!draftError}>
                 <ha-icon icon="mdi:content-save-outline"></ha-icon>
                 <span>${this._savingEvent ? t(locale, "loading") : t(locale, "save")}</span>
               </button>

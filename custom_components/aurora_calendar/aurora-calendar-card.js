@@ -95,6 +95,50 @@ const CONFIG_DEFAULTS = {
     weather_icon_style: "static",
 };
 
+/**
+ * Pure helpers for working with the create/edit-event draft state.
+ *
+ * Extracted from `aurora-calendar-card.ts` so they can be unit-tested
+ * without instantiating the full Lit element. Anything in this module
+ * MUST be a pure function — no `this`, no DOM, no `hass`.
+ */
+/**
+ * Auto-correct silently-fixable issues on the draft. Currently:
+ *   - end date < start date  →  bumped to equal start date
+ *
+ * Times are NOT auto-corrected: validation surfaces them inline so the
+ * user can see and fix what they typed.
+ */
+function normalizeDraft(draft) {
+    if (!draft.startDate)
+        return draft;
+    if (!draft.endDate || draft.endDate < draft.startDate) {
+        return { ...draft, endDate: draft.startDate };
+    }
+    return draft;
+}
+/**
+ * Returns a user-facing error string when the draft is invalid, or
+ * empty string when it's OK. Used to disable the Save button and show
+ * an inline message in the dialog.
+ */
+function draftError(draft) {
+    if (!draft.startDate || !draft.endDate)
+        return "";
+    if (draft.allDay) {
+        return draft.endDate < draft.startDate
+            ? "End date must be on or after start date."
+            : "";
+    }
+    if (!draft.startTime || !draft.endTime)
+        return "";
+    const start = `${draft.startDate} ${draft.startTime}`;
+    const end = `${draft.endDate} ${draft.endTime}`;
+    if (end <= start)
+        return "End time must be after start time.";
+    return "";
+}
+
 const TRANSLATIONS = {
     en: {
         allDay: "all-day",
@@ -4329,17 +4373,15 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
             return value;
         return this._dateInputValue(this._addDays(date, days));
     }
-    _normalizeAllDayDraft(draft) {
-        if (!draft.allDay || !draft.startDate)
-            return draft;
-        if (!draft.endDate || draft.endDate < draft.startDate) {
-            return { ...draft, endDate: draft.startDate };
-        }
-        return draft;
+    _normalizeDraft(draft) {
+        return normalizeDraft(draft);
+    }
+    _draftError(draft) {
+        return draftError(draft);
     }
     _updateDraft(draft, field, value) {
         const next = { ...draft, [field]: value };
-        return this._normalizeAllDayDraft(next);
+        return this._normalizeDraft(next);
     }
     _updateCreateDraft(field, value) {
         if (!this._createDraft)
@@ -4440,7 +4482,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         const endDateInput = event.all_day
             ? this._addDaysToDateInput(this._dateInputValue(end), -1)
             : this._dateInputValue(end);
-        this._editDraft = this._normalizeAllDayDraft({
+        this._editDraft = this._normalizeDraft({
             calendarEntity: event.calendarEntity,
             title: event.title,
             allDay: event.all_day,
@@ -4775,6 +4817,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         if (!this._editDialogOpen || !this._editDraft || !selected)
             return A;
         const draft = this._editDraft;
+        const draftError = this._draftError(draft);
         return b `
       <div class="event-dialog-backdrop ${this._closingDialog === "edit" ? "closing" : ""}" @click=${this._closeEditDialog}>
         <section
@@ -4895,7 +4938,9 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
               ></textarea>
             </label>
 
-            ${this._eventActionError ? b `
+            ${draftError ? b `
+              <div class="event-action-error">${draftError}</div>
+            ` : this._eventActionError ? b `
               <div class="event-action-error">${this._eventActionError}</div>
             ` : A}
 
@@ -4903,7 +4948,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
               <button type="button" class="secondary-action" @click=${this._closeEditDialog}>
                 ${t(locale, "cancel")}
               </button>
-              <button type="submit" class="primary-action" ?disabled=${this._savingEvent}>
+              <button type="submit" class="primary-action" ?disabled=${this._savingEvent || !!draftError}>
                 <ha-icon icon="mdi:content-save-outline"></ha-icon>
                 <span>${this._savingEvent ? t(locale, "loading") : t(locale, "updateEvent")}</span>
               </button>
@@ -4919,6 +4964,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         const draft = this._createDraft;
         const writableCalendars = this._writableCalendars;
         const canCreate = writableCalendars.length > 0;
+        const draftError = this._draftError(draft);
         return b `
       <div class="event-dialog-backdrop ${this._closingDialog === "create" ? "closing" : ""}" @click=${this._closeCreateDialog}>
         <section
@@ -5094,7 +5140,9 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
               ></textarea>
             </label>
 
-            ${this._eventActionError ? b `
+            ${draftError ? b `
+              <div class="event-action-error">${draftError}</div>
+            ` : this._eventActionError ? b `
               <div class="event-action-error">${this._eventActionError}</div>
             ` : A}
 
@@ -5102,7 +5150,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
               <button type="button" class="secondary-action" @click=${this._closeCreateDialog}>
                 ${t(locale, "cancel")}
               </button>
-              <button type="submit" class="primary-action" ?disabled=${!canCreate || this._savingEvent}>
+              <button type="submit" class="primary-action" ?disabled=${!canCreate || this._savingEvent || !!draftError}>
                 <ha-icon icon="mdi:content-save-outline"></ha-icon>
                 <span>${this._savingEvent ? t(locale, "loading") : t(locale, "save")}</span>
               </button>

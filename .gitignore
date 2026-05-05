@@ -4,6 +4,13 @@ node_modules/
 # Stale build output (build now writes into custom_components/aurora_calendar/)
 dist/
 
+# Test infra
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+coverage/
+
 # macOS
 .DS_Store
 

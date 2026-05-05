@@ -105,10 +105,7 @@ class AuroraCalendarOptionsFlow(OptionsFlow):
                 vol.Optional(
                     "calendar_entities",
                     default=list(self._existing.keys()),
-                ): vol.All(
-                    _drop_empty,
-                    EntitySelector(EntitySelectorConfig(domain="calendar", multiple=True)),
-                ),
+                ): EntitySelector(EntitySelectorConfig(domain="calendar", multiple=True)),
                 vol.Optional(
                     "weather_entity",
                     default=self._weather_entity,
@@ -241,13 +238,6 @@ class AuroraCalendarOptionsFlow(OptionsFlow):
                 "calendars": ", ".join(self._selected_entities)
             },
         )
-
-
-def _drop_empty(value: Any) -> Any:
-    """Strip empty entries from a list before downstream validation."""
-    if isinstance(value, list):
-        return [v for v in value if v]
-    return value
 
 
 def _safe_key(entity_id: str) -> str:

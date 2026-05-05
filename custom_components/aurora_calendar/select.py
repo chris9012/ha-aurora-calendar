@@ -39,6 +39,7 @@ class AuroraCalendarDefaultViewSelect(SelectEntity, RestoreEntity):
         self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_view_mode"
         self._attr_current_option = DEFAULT_VIEW_MODE
+        self.entity_id = "select.aurora_calendar_view_mode"
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -58,3 +59,4 @@ class AuroraCalendarDefaultViewSelect(SelectEntity, RestoreEntity):
             "manufacturer": "Aurora Calendar",
             "model": "Calendar Integration",
         }
+

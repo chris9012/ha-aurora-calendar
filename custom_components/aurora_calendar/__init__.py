@@ -98,33 +98,26 @@ def _cleanup_stale_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
             registry.async_remove(entity_id)
             _LOGGER.debug("Removed stale entity %s", entity_id)
 
-    # Migrate entity IDs from older versions where the friendly name produced
-    # a different slug. The card hardcodes the expected entity_ids, so anything
-    # else breaks it.
-    _migrate_entity_id(registry, entry, "sensor", "_events", "sensor.aurora_calendar_events")
-    _migrate_entity_id(registry, entry, "select", "_view_mode", "select.aurora_calendar_view_mode")
-
-
-def _migrate_entity_id(
-    registry: er.EntityRegistry,
-    entry: ConfigEntry,
-    domain: str,
-    unique_id_suffix: str,
-    expected_entity_id: str,
-) -> None:
-    """Rename an entity to its expected ID if it drifted (e.g. older friendly name)."""
-    unique_id = f"{entry.entry_id}{unique_id_suffix}"
-    current = registry.async_get_entity_id(domain, DOMAIN, unique_id)
-    if not current or current == expected_entity_id:
-        return
-    if registry.async_get(expected_entity_id):
-        # Target slot is occupied — bail rather than collide.
-        _LOGGER.warning(
-            "Cannot migrate %s → %s: target already exists", current, expected_entity_id
-        )
-        return
-    registry.async_update_entity(current, new_entity_id=expected_entity_id)
-    _LOGGER.info("Migrated entity %s → %s", current, expected_entity_id)
+    # Migrate any aurora_calendar entity that drifted away from the expected
+    # `<domain>.aurora_calendar_<suffix>` shape. The card hardcodes those IDs.
+    prefix = f"{entry.entry_id}_"
+    for entity in list(registry.entities.values()):
+        if entity.config_entry_id != entry.entry_id or entity.platform != DOMAIN:
+            continue
+        if not entity.unique_id.startswith(prefix):
+            continue
+        suffix = entity.unique_id[len(prefix):]
+        expected = f"{entity.domain}.aurora_calendar_{suffix}"
+        if entity.entity_id == expected:
+            continue
+        if registry.async_get(expected):
+            _LOGGER.warning(
+                "Cannot migrate %s → %s: target already exists",
+                entity.entity_id, expected,
+            )
+            continue
+        registry.async_update_entity(entity.entity_id, new_entity_id=expected)
+        _LOGGER.info("Migrated entity %s → %s", entity.entity_id, expected)
 
 
 def _get_coordinator(hass: HomeAssistant) -> AuroraCalendarCoordinator:

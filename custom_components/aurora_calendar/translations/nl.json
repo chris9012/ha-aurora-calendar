@@ -3,14 +3,301 @@
     "step": {
       "user": {
         "title": "Aurora Calendar",
-        "description": "Stel de Aurora Calendar-dashboardintegratie in.",
+        "description": "Geef je Aurora Calendar-instantie een naam. In de volgende stap kies je de kalenders.",
         "data": {
-          "name": "Integratienaam"
+          "name": "Naam van integratie"
+        }
+      },
+      "calendars": {
+        "title": "Kies je kalenders",
+        "description": "Kies de kalender-entiteiten die je wilt weergeven, plus een optionele weer-entiteit voor de voorspelling.",
+        "data": {
+          "calendar_entities": "Kalender-entiteiten",
+          "weather_entity": "Weer-entiteit (optioneel)"
+        }
+      },
+      "details": {
+        "title": "Kalenders en personen",
+        "description": "Stel de weergavenaam, kleur en gekoppelde persoon in voor elke kalender.",
+        "data": {
+          "calendar_entity": "Kalender-entiteit",
+          "display_name": "Weergavenaam",
+          "color_mode": "Kleurbron",
+          "override_color": "Aangepaste kleur",
+          "person_entity_id": "Home Assistant-persoon (optioneel)"
+        },
+        "data_description": {
+          "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+        },
+        "sections": {
+          "calendar_1": {
+            "name": "Kalender 1",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_2": {
+            "name": "Kalender 2",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_3": {
+            "name": "Kalender 3",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_4": {
+            "name": "Kalender 4",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_5": {
+            "name": "Kalender 5",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_6": {
+            "name": "Kalender 6",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_7": {
+            "name": "Kalender 7",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_8": {
+            "name": "Kalender 8",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_9": {
+            "name": "Kalender 9",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_10": {
+            "name": "Kalender 10",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_11": {
+            "name": "Kalender 11",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_12": {
+            "name": "Kalender 12",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_13": {
+            "name": "Kalender 13",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_14": {
+            "name": "Kalender 14",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_15": {
+            "name": "Kalender 15",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_16": {
+            "name": "Kalender 16",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_17": {
+            "name": "Kalender 17",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_18": {
+            "name": "Kalender 18",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_19": {
+            "name": "Kalender 19",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          },
+          "calendar_20": {
+            "name": "Kalender 20",
+            "data": {
+              "calendar_entity": "Kalender-entiteit",
+              "display_name": "Weergavenaam",
+              "color_mode": "Kleurbron",
+              "override_color": "Aangepaste kleur",
+              "person_entity_id": "Home Assistant-persoon (optioneel)"
+            },
+            "data_description": {
+              "person_entity_id": "Gebruikt de afbeelding van deze persoon-entiteit als avatar wanneer beschikbaar."
+            }
+          }
         }
       }
     },
     "abort": {
-      "single_instance_allowed": "Er is slechts één Aurora Calendar-instantie toegestaan."
+      "single_instance_allowed": "Slechts één Aurora Calendar-instantie is toegestaan."
+    },
+    "error": {
+      "no_calendars_selected": "Selecteer minstens één kalender om door te gaan."
     }
   },
   "options": {
@@ -299,6 +586,10 @@
           }
         }
       }
+    },
+    "error": {
+      "no_calendars_selected": "Please pick at least one calendar before continuing."
     }
-  }
+  },
+  "title": "Aurora Calendar"
 }

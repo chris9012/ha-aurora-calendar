@@ -3,14 +3,301 @@
     "step": {
       "user": {
         "title": "Aurora Calendar",
-        "description": "Skonfiguruj integrację panelu Aurora Calendar.",
+        "description": "Nadaj nazwę swojej instancji Aurora Calendar. Kalendarze wybierzesz w następnym kroku.",
         "data": {
           "name": "Nazwa integracji"
+        }
+      },
+      "calendars": {
+        "title": "Wybierz kalendarze",
+        "description": "Wybierz encje kalendarzy do wyświetlenia oraz opcjonalną encję pogody dla prognozy.",
+        "data": {
+          "calendar_entities": "Encje kalendarzy",
+          "weather_entity": "Encja pogody (opcjonalnie)"
+        }
+      },
+      "details": {
+        "title": "Kalendarze i osoby",
+        "description": "Ustaw nazwę, kolor i powiązaną osobę dla każdego kalendarza.",
+        "data": {
+          "calendar_entity": "Encja kalendarza",
+          "display_name": "Nazwa wyświetlana",
+          "color_mode": "Źródło koloru",
+          "override_color": "Kolor niestandardowy",
+          "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+        },
+        "data_description": {
+          "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+        },
+        "sections": {
+          "calendar_1": {
+            "name": "Kalendarz 1",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_2": {
+            "name": "Kalendarz 2",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_3": {
+            "name": "Kalendarz 3",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_4": {
+            "name": "Kalendarz 4",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_5": {
+            "name": "Kalendarz 5",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_6": {
+            "name": "Kalendarz 6",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_7": {
+            "name": "Kalendarz 7",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_8": {
+            "name": "Kalendarz 8",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_9": {
+            "name": "Kalendarz 9",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_10": {
+            "name": "Kalendarz 10",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_11": {
+            "name": "Kalendarz 11",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_12": {
+            "name": "Kalendarz 12",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_13": {
+            "name": "Kalendarz 13",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_14": {
+            "name": "Kalendarz 14",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_15": {
+            "name": "Kalendarz 15",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_16": {
+            "name": "Kalendarz 16",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_17": {
+            "name": "Kalendarz 17",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_18": {
+            "name": "Kalendarz 18",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_19": {
+            "name": "Kalendarz 19",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          },
+          "calendar_20": {
+            "name": "Kalendarz 20",
+            "data": {
+              "calendar_entity": "Encja kalendarza",
+              "display_name": "Nazwa wyświetlana",
+              "color_mode": "Źródło koloru",
+              "override_color": "Kolor niestandardowy",
+              "person_entity_id": "Osoba Home Assistant (opcjonalnie)"
+            },
+            "data_description": {
+              "person_entity_id": "Używa zdjęcia tej osoby jako awatara, gdy jest dostępne."
+            }
+          }
         }
       }
     },
     "abort": {
       "single_instance_allowed": "Dozwolona jest tylko jedna instancja Aurora Calendar."
+    },
+    "error": {
+      "no_calendars_selected": "Wybierz co najmniej jeden kalendarz, aby kontynuować."
     }
   },
   "options": {
@@ -299,6 +586,10 @@
           }
         }
       }
+    },
+    "error": {
+      "no_calendars_selected": "Please pick at least one calendar before continuing."
     }
-  }
+  },
+  "title": "Aurora Calendar"
 }

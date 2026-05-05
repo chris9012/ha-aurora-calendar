@@ -39,53 +39,21 @@ _DEFAULT_COLORS = [
 ]
 
 
-class AuroraCalendarConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Aurora Calendar."""
+class _CalendarFlowMixin:
+    """Shared 'pick calendars' + 'per-calendar details' steps.
 
-    VERSION = 1
+    Subclasses must define:
+      - self._existing       : dict[entity_id -> calendar config] (may be {})
+      - self._selected_entities : list[str]
+      - self._weather_entity : str
+      - self._async_finalize(calendars, weather_entity) -> awaitable
+    """
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> dict:
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
-        if user_input is not None:
-            return self.async_create_entry(
-                title=user_input["name"],
-                data={"name": user_input["name"]},
-                options={"calendars": [], "weather_entity": ""},
-            )
-
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema({vol.Required("name", default="Aurora Calendar"): str}),
-        )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> AuroraCalendarOptionsFlow:
-        return AuroraCalendarOptionsFlow(config_entry)
-
-
-class AuroraCalendarOptionsFlow(OptionsFlow):
-    """Two-step options flow: pick calendars → set person names & colors."""
-
-    def __init__(self, config_entry: ConfigEntry) -> None:
-        self._config_entry = config_entry
-        self._existing: dict[str, dict] = {
-            c["entity_id"]: c
-            for c in config_entry.options.get("calendars", [])
-        }
-        self._selected_entities: list[str] = []
-        self._weather_entity: str = config_entry.options.get("weather_entity", "")
-
-    # ------------------------------------------------------------------
-    # Step 1 — choose calendars + weather
-    # ------------------------------------------------------------------
-
-    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> dict:
-        return await self.async_step_calendars(user_input)
+    # Type stubs to satisfy linters; real attributes live on subclasses.
+    _existing: dict[str, dict]
+    _selected_entities: list[str]
+    _weather_entity: str
+    hass: Any
 
     async def async_step_calendars(
         self, user_input: dict[str, Any] | None = None
@@ -97,19 +65,27 @@ class AuroraCalendarOptionsFlow(OptionsFlow):
                 errors["calendar_entities"] = "no_calendars_selected"
             else:
                 self._selected_entities = selected
-                self._weather_entity = user_input.get("weather_entity", "") or ""
+                self._weather_entity = user_input.get("weather_entity") or ""
                 return await self.async_step_details()
+
+        weather_kwargs: dict[str, Any] = {}
+        if self._weather_entity:
+            weather_kwargs["description"] = {"suggested_value": self._weather_entity}
+
+        calendars_kwargs: dict[str, Any] = {}
+        if self._existing:
+            calendars_kwargs["description"] = {
+                "suggested_value": list(self._existing.keys())
+            }
 
         schema = vol.Schema(
             {
-                vol.Optional(
-                    "calendar_entities",
-                    default=list(self._existing.keys()),
-                ): EntitySelector(EntitySelectorConfig(domain="calendar", multiple=True)),
-                vol.Optional(
-                    "weather_entity",
-                    default=self._weather_entity,
-                ): EntitySelector(EntitySelectorConfig(domain="weather", multiple=False)),
+                vol.Optional("calendar_entities", **calendars_kwargs): EntitySelector(
+                    EntitySelectorConfig(domain="calendar", multiple=True)
+                ),
+                vol.Optional("weather_entity", **weather_kwargs): EntitySelector(
+                    EntitySelectorConfig(domain="weather", multiple=False)
+                ),
             }
         )
         return self.async_show_form(
@@ -117,10 +93,6 @@ class AuroraCalendarOptionsFlow(OptionsFlow):
             data_schema=schema,
             errors=errors,
         )
-
-    # ------------------------------------------------------------------
-    # Step 2 — person name + color per calendar
-    # ------------------------------------------------------------------
 
     async def async_step_details(
         self, user_input: dict[str, Any] | None = None
@@ -166,10 +138,7 @@ class AuroraCalendarOptionsFlow(OptionsFlow):
                         "avatar": existing.get("avatar", ""),
                     }
                 )
-            return self.async_create_entry(
-                title="",
-                data={"calendars": calendars, "weather_entity": self._weather_entity},
-            )
+            return await self._async_finalize(calendars, self._weather_entity)
 
         fields: dict[Any, Any] = {}
         for idx, entity_id in enumerate(self._selected_entities):
@@ -237,6 +206,69 @@ class AuroraCalendarOptionsFlow(OptionsFlow):
             description_placeholders={
                 "calendars": ", ".join(self._selected_entities)
             },
+        )
+
+    async def _async_finalize(
+        self, calendars: list[dict], weather_entity: str
+    ) -> dict:
+        raise NotImplementedError
+
+
+class AuroraCalendarConfigFlow(_CalendarFlowMixin, ConfigFlow, domain=DOMAIN):
+    """Initial setup: name → pick calendars → per-calendar details → done."""
+
+    VERSION = 1
+
+    def __init__(self) -> None:
+        self._name: str = "Aurora Calendar"
+        self._existing: dict[str, dict] = {}
+        self._selected_entities: list[str] = []
+        self._weather_entity: str = ""
+
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> dict:
+        if self._async_current_entries():
+            return self.async_abort(reason="single_instance_allowed")
+        # No name prompt — jump straight to picking calendars.
+        return await self.async_step_calendars()
+
+    async def _async_finalize(
+        self, calendars: list[dict], weather_entity: str
+    ) -> dict:
+        return self.async_create_entry(
+            title=self._name,
+            data={"name": self._name},
+            options={"calendars": calendars, "weather_entity": weather_entity},
+        )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> AuroraCalendarOptionsFlow:
+        return AuroraCalendarOptionsFlow(config_entry)
+
+
+class AuroraCalendarOptionsFlow(_CalendarFlowMixin, OptionsFlow):
+    """Reconfigure: pick calendars → per-calendar details → save."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        self._config_entry = config_entry
+        self._existing = {
+            c["entity_id"]: c
+            for c in config_entry.options.get("calendars", [])
+        }
+        self._selected_entities = []
+        self._weather_entity = config_entry.options.get("weather_entity", "")
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> dict:
+        return await self.async_step_calendars(user_input)
+
+    async def _async_finalize(
+        self, calendars: list[dict], weather_entity: str
+    ) -> dict:
+        return self.async_create_entry(
+            title="",
+            data={"calendars": calendars, "weather_entity": weather_entity},
         )
 
 

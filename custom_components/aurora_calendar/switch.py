@@ -44,6 +44,7 @@ class AuroraPersonFilterSwitch(CoordinatorEntity, SwitchEntity):
         self._slug = person_info["slug"]
         self._attr_name = f"Filter {self._person}"
         self._attr_unique_id = f"{entry.entry_id}_filter_{self._slug}"
+        self.entity_id = f"switch.aurora_calendar_filter_{self._slug}"
 
     @property
     def is_on(self) -> bool:
@@ -73,3 +74,4 @@ class AuroraPersonFilterSwitch(CoordinatorEntity, SwitchEntity):
             "manufacturer": "Aurora Calendar",
             "model": "Calendar Integration",
         }
+

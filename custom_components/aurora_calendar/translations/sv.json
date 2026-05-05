@@ -3,14 +3,301 @@
     "step": {
       "user": {
         "title": "Aurora Calendar",
-        "description": "Konfigurera Aurora Calendar-panelintegrationen.",
+        "description": "Ge din Aurora Calendar-instans ett namn. Du väljer kalendrar i nästa steg.",
         "data": {
-          "name": "Integrationsnamn"
+          "name": "Integrationens namn"
+        }
+      },
+      "calendars": {
+        "title": "Välj dina kalendrar",
+        "description": "Välj kalenderentiteterna som ska visas, plus en valfri väderentitet för prognosen.",
+        "data": {
+          "calendar_entities": "Kalenderentiteter",
+          "weather_entity": "Väderentitet (valfritt)"
+        }
+      },
+      "details": {
+        "title": "Kalendrar och personer",
+        "description": "Ange visningsnamn, färg och kopplad person för varje kalender.",
+        "data": {
+          "calendar_entity": "Kalenderentitet",
+          "display_name": "Visningsnamn",
+          "color_mode": "Färgkälla",
+          "override_color": "Anpassad färg",
+          "person_entity_id": "Home Assistant-person (valfritt)"
+        },
+        "data_description": {
+          "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+        },
+        "sections": {
+          "calendar_1": {
+            "name": "Kalender 1",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_2": {
+            "name": "Kalender 2",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_3": {
+            "name": "Kalender 3",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_4": {
+            "name": "Kalender 4",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_5": {
+            "name": "Kalender 5",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_6": {
+            "name": "Kalender 6",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_7": {
+            "name": "Kalender 7",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_8": {
+            "name": "Kalender 8",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_9": {
+            "name": "Kalender 9",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_10": {
+            "name": "Kalender 10",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_11": {
+            "name": "Kalender 11",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_12": {
+            "name": "Kalender 12",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_13": {
+            "name": "Kalender 13",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_14": {
+            "name": "Kalender 14",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_15": {
+            "name": "Kalender 15",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_16": {
+            "name": "Kalender 16",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_17": {
+            "name": "Kalender 17",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_18": {
+            "name": "Kalender 18",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_19": {
+            "name": "Kalender 19",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          },
+          "calendar_20": {
+            "name": "Kalender 20",
+            "data": {
+              "calendar_entity": "Kalenderentitet",
+              "display_name": "Visningsnamn",
+              "color_mode": "Färgkälla",
+              "override_color": "Anpassad färg",
+              "person_entity_id": "Home Assistant-person (valfritt)"
+            },
+            "data_description": {
+              "person_entity_id": "Använder personentitetens bild som avatar när tillgänglig."
+            }
+          }
         }
       }
     },
     "abort": {
-      "single_instance_allowed": "Endast en Aurora Calendar-instans är tillåten."
+      "single_instance_allowed": "Endast en Aurora Calendar-instans tillåts."
+    },
+    "error": {
+      "no_calendars_selected": "Välj minst en kalender för att fortsätta."
     }
   },
   "options": {
@@ -299,6 +586,10 @@
           }
         }
       }
+    },
+    "error": {
+      "no_calendars_selected": "Please pick at least one calendar before continuing."
     }
-  }
+  },
+  "title": "Aurora Calendar"
 }

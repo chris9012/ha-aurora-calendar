@@ -42,9 +42,9 @@ class AuroraCalendarConfigSensor(CoordinatorEntity, SensorEntity):
     ) -> None:
         super().__init__(coordinator)
         self._entry = entry
-        # Re-use the old unique_id so the entity_id stays sensor.aurora_calendar_events
-        # (avoids orphaning the existing registry entry during development)
         self._attr_unique_id = f"{entry.entry_id}_events"
+        # Pin the entity_id so the card can hardcode it.
+        self.entity_id = "sensor.aurora_calendar_events"
 
     @property
     def state(self) -> int:
@@ -68,3 +68,4 @@ class AuroraCalendarConfigSensor(CoordinatorEntity, SensorEntity):
             "manufacturer": "Aurora Calendar",
             "model": "Calendar Integration",
         }
+

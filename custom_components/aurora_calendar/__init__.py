@@ -8,7 +8,8 @@ import voluptuous as vol
 
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+from homeassistant.core import Event, HomeAssistant, ServiceCall
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
@@ -44,6 +45,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _register_services(hass)
+
+    # Person entity pictures aren't in the state machine during integration
+    # setup, so avatars for all but the first calendar come back empty.
+    # Re-fetch after HA has fully started so all person entities are available.
+    async def _refresh_avatars(_event: Event) -> None:
+        await coordinator.async_refresh()
+
+    if hass.is_running:
+        await coordinator.async_refresh()
+    else:
+        entry.async_on_unload(
+            hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _refresh_avatars)
+        )
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 

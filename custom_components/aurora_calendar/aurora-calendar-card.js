@@ -4238,7 +4238,15 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         return (this.hass?.states[id]?.attributes ?? {});
     }
     get _persons() {
-        return this._configAttrs.persons ?? [];
+        const raw = this._configAttrs.persons ?? [];
+        return raw.map((p) => {
+            if (p.avatar)
+                return p;
+            const pic = p.person_entity_id
+                ? String(this.hass?.states[p.person_entity_id]?.attributes?.entity_picture ?? "")
+                : "";
+            return pic ? { ...p, avatar: pic } : p;
+        });
     }
     get _filters() {
         return (this._configAttrs.filters ?? {});

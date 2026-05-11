@@ -470,7 +470,14 @@ export class AuroraCalendarCard extends LitElement {
   }
 
   private get _persons(): PersonInfo[] {
-    return (this._configAttrs.persons as PersonInfo[] | undefined) ?? [];
+    const raw = (this._configAttrs.persons as PersonInfo[] | undefined) ?? [];
+    return raw.map((p) => {
+      if (p.avatar) return p;
+      const pic = p.person_entity_id
+        ? String(this.hass?.states[p.person_entity_id]?.attributes?.entity_picture ?? "")
+        : "";
+      return pic ? { ...p, avatar: pic } : p;
+    });
   }
 
   private get _filters(): Record<string, boolean> {

@@ -78,6 +78,7 @@ const CONFIG_DEFAULTS = {
     fixed_height: "640px",
     dim_past_events: true,
     show_event_time: true,
+    show_location: true,
     time_format: "12h",
     visible_start_hour: 6,
     visible_end_hour: 22,
@@ -242,6 +243,8 @@ const TRANSLATIONS = {
         visibleStartHour: "Visible start hour",
         showFab: "Add-event button",
         showFabDesc: "Show the floating + button for creating new events.",
+        showLocation: "Show location",
+        showLocationDesc: "Display the event location below the time on event cards.",
         showFilter: "Calendar filter",
         showFilterDesc: "Show the filter button for toggling calendars on/off.",
         showJumpTo: "Jump to date",
@@ -1310,6 +1313,7 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
       >
         <div class="chip-title">${e.title}</div>
         ${time ? b `<div class="chip-time">${time}</div>` : ""}
+        ${this.config.show_location && !e.all_day && e.location ? b `<div class="chip-location">${e.location}</div>` : ""}
         ${avatar}
       </div>
     `;
@@ -1715,7 +1719,7 @@ AuroraCalendarMonth.styles = i$3 `
       display: block;
       position: relative;
       min-height: 34px;
-      padding: var(--aurora-event-padding, 4px 26px 4px 6px);
+      padding: var(--aurora-event-padding, 4px 36px 4px 6px);
       border-radius: var(--aurora-event-radius, 7px);
       margin-bottom: 4px;
       overflow: hidden;
@@ -1758,8 +1762,8 @@ AuroraCalendarMonth.styles = i$3 `
     }
 
     .chip.all-day-chip .event-avatar {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       font-size: 0.58rem;
     }
 
@@ -1782,6 +1786,16 @@ AuroraCalendarMonth.styles = i$3 `
       opacity: 0.82;
     }
 
+    .chip-location {
+      margin-top: 1px;
+      font-size: 0.78em;
+      font-weight: 500;
+      opacity: 0.72;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .chip.dim {
       opacity: 0.38;
     }
@@ -1789,9 +1803,10 @@ AuroraCalendarMonth.styles = i$3 `
     .event-avatar {
       position: absolute;
       right: 5px;
-      bottom: 4px;
-      width: 18px;
-      height: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2090,6 +2105,7 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
       >
         <div class="chip-title">${e.title}</div>
         ${time ? b `<div class="chip-time">${time}</div>` : ""}
+        ${this.config.show_location && !e.all_day && e.location ? b `<div class="chip-location">${e.location}</div>` : ""}
         ${avatar}
       </div>
     `;
@@ -2464,7 +2480,7 @@ AuroraCalendarWeekBox.styles = i$3 `
       display: block;
       position: relative;
       min-height: 40px;
-      padding: var(--aurora-event-padding, 5px 30px 5px 7px);
+      padding: var(--aurora-event-padding, 5px 36px 5px 7px);
       border-radius: var(--aurora-event-radius, 8px);
       margin-bottom: 5px;
       overflow: hidden;
@@ -2507,8 +2523,8 @@ AuroraCalendarWeekBox.styles = i$3 `
     }
 
     .chip.all-day-chip .event-avatar {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       font-size: 0.58rem;
     }
 
@@ -2531,6 +2547,16 @@ AuroraCalendarWeekBox.styles = i$3 `
       opacity: 0.82;
     }
 
+    .chip-location {
+      margin-top: 1px;
+      font-size: 0.78em;
+      font-weight: 500;
+      opacity: 0.72;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .chip.dim {
       opacity: 0.38;
     }
@@ -2538,9 +2564,10 @@ AuroraCalendarWeekBox.styles = i$3 `
     .event-avatar {
       position: absolute;
       right: 6px;
-      bottom: 5px;
-      width: 20px;
-      height: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2983,6 +3010,9 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
                           <div class="ev-title">${p.event.title}</div>
                           ${p.height > 38 && timeStr
                     ? b `<div class="ev-time">${timeStr}</div>`
+                    : A}
+                          ${this.config.show_location && p.height > 56 && p.event.location
+                    ? b `<div class="ev-location">${p.event.location}</div>`
                     : A}
                           ${avatar}
                         </div>
@@ -3553,7 +3583,7 @@ AuroraCalendarTimeGrid.styles = i$3 `
       position: absolute;
       border-radius: var(--aurora-event-radius, 8px);
       overflow: hidden;
-      padding: var(--aurora-event-padding, 6px 30px 6px 8px);
+      padding: var(--aurora-event-padding, 6px 36px 6px 8px);
       box-sizing: border-box;
       cursor: pointer;
       transition: filter 0.12s;
@@ -3737,12 +3767,23 @@ AuroraCalendarTimeGrid.styles = i$3 `
       text-overflow: ellipsis;
     }
 
+    .ev-location {
+      margin-top: 1px;
+      font-size: 0.78em;
+      font-weight: 500;
+      opacity: 0.72;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .event-avatar {
       position: absolute;
       right: 6px;
-      bottom: 5px;
-      width: 20px;
-      height: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -6932,6 +6973,15 @@ let AuroraCalendarCardEditor = class AuroraCalendarCardEditor extends i {
               <ha-switch
                 .checked=${this._config.show_event_time}
                 @change=${(e) => this._set("show_event_time", e.target.checked)}
+              ></ha-switch>
+            </ha-settings-row>
+
+            <ha-settings-row>
+              <span slot="heading">${t(locale, "showLocation")}</span>
+              <span slot="description">${t(locale, "showLocationDesc")}</span>
+              <ha-switch
+                .checked=${this._config.show_location}
+                @change=${(e) => this._set("show_location", e.target.checked)}
               ></ha-switch>
             </ha-settings-row>
 

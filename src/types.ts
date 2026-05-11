@@ -22,6 +22,7 @@ export interface AuroraCalendarConfig {
   fixed_height: string;
   dim_past_events: boolean;
   show_event_time: boolean;
+  show_location: boolean;
   time_format: TimeFormat;
   visible_start_hour: number;
   visible_end_hour: number;
@@ -54,6 +55,7 @@ export const CONFIG_DEFAULTS: Omit<AuroraCalendarConfig, "type" | "integration">
   fixed_height: "640px",
   dim_past_events: true,
   show_event_time: true,
+  show_location: true,
   time_format: "12h",
   visible_start_hour: 6,
   visible_end_hour: 22,

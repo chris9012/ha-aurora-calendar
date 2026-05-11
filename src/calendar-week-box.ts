@@ -202,6 +202,7 @@ export class AuroraCalendarWeekBox extends LitElement {
       >
         <div class="chip-title">${e.title}</div>
         ${time ? html`<div class="chip-time">${time}</div>` : ""}
+        ${this.config.show_location && !e.all_day && e.location ? html`<div class="chip-location">${e.location}</div>` : ""}
         ${avatar}
       </div>
     `;
@@ -594,7 +595,7 @@ export class AuroraCalendarWeekBox extends LitElement {
       display: block;
       position: relative;
       min-height: 40px;
-      padding: var(--aurora-event-padding, 5px 30px 5px 7px);
+      padding: var(--aurora-event-padding, 5px 36px 5px 7px);
       border-radius: var(--aurora-event-radius, 8px);
       margin-bottom: 5px;
       overflow: hidden;
@@ -637,8 +638,8 @@ export class AuroraCalendarWeekBox extends LitElement {
     }
 
     .chip.all-day-chip .event-avatar {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       font-size: 0.58rem;
     }
 
@@ -661,6 +662,16 @@ export class AuroraCalendarWeekBox extends LitElement {
       opacity: 0.82;
     }
 
+    .chip-location {
+      margin-top: 1px;
+      font-size: 0.78em;
+      font-weight: 500;
+      opacity: 0.72;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .chip.dim {
       opacity: 0.38;
     }
@@ -668,9 +679,10 @@ export class AuroraCalendarWeekBox extends LitElement {
     .event-avatar {
       position: absolute;
       right: 6px;
-      bottom: 5px;
-      width: 20px;
-      height: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;

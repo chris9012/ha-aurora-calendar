@@ -307,6 +307,9 @@ export class AuroraCalendarTimeGrid extends LitElement {
                           ${p.height > 38 && timeStr
                             ? html`<div class="ev-time">${timeStr}</div>`
                             : nothing}
+                          ${this.config.show_location && p.height > 56 && p.event.location
+                            ? html`<div class="ev-location">${p.event.location}</div>`
+                            : nothing}
                           ${avatar}
                         </div>
                       `;
@@ -975,7 +978,7 @@ export class AuroraCalendarTimeGrid extends LitElement {
       position: absolute;
       border-radius: var(--aurora-event-radius, 8px);
       overflow: hidden;
-      padding: var(--aurora-event-padding, 6px 30px 6px 8px);
+      padding: var(--aurora-event-padding, 6px 36px 6px 8px);
       box-sizing: border-box;
       cursor: pointer;
       transition: filter 0.12s;
@@ -1159,12 +1162,23 @@ export class AuroraCalendarTimeGrid extends LitElement {
       text-overflow: ellipsis;
     }
 
+    .ev-location {
+      margin-top: 1px;
+      font-size: 0.78em;
+      font-weight: 500;
+      opacity: 0.72;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .event-avatar {
       position: absolute;
       right: 6px;
-      bottom: 5px;
-      width: 20px;
-      height: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;

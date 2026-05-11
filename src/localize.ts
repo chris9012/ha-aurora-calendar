@@ -98,6 +98,8 @@ type TranslationKey =
   | "showFab"
   | "showFabDesc"
   | "showFilter"
+  | "showLocation"
+  | "showLocationDesc"
   | "showFilterDesc"
   | "showJumpTo"
   | "showJumpToDesc"
@@ -212,6 +214,8 @@ const TRANSLATIONS: Record<string, TranslationMap> = {
     visibleStartHour: "Visible start hour",
     showFab: "Add-event button",
     showFabDesc: "Show the floating + button for creating new events.",
+    showLocation: "Show location",
+    showLocationDesc: "Display the event location below the time on event cards.",
     showFilter: "Calendar filter",
     showFilterDesc: "Show the filter button for toggling calendars on/off.",
     showJumpTo: "Jump to date",

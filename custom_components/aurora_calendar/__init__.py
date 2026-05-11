@@ -10,6 +10,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import Event, HomeAssistant, ServiceCall
+from homeassistant.helpers.event import async_call_later
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
@@ -46,17 +47,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _register_services(hass)
 
-    # Person entity pictures aren't in the state machine during integration
-    # setup, so avatars for all but the first calendar come back empty.
-    # Re-fetch after HA has fully started so all person entities are available.
-    async def _refresh_avatars(_event: Event) -> None:
-        await coordinator.async_refresh()
+    # Person entity pictures and HA's image-serving API aren't fully ready
+    # during integration setup. Schedule a refresh 10 s after HA has started
+    # so avatar URLs resolve correctly on every boot.
+    async def _schedule_avatar_refresh(_event: Event) -> None:
+        async def _do_refresh(_now: object) -> None:
+            await coordinator.async_refresh()
+        async_call_later(hass, 10, _do_refresh)
 
     if hass.is_running:
-        await coordinator.async_refresh()
+        async_call_later(hass, 10, lambda _now: hass.async_create_task(coordinator.async_refresh()))
     else:
         entry.async_on_unload(
-            hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _refresh_avatars)
+            hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _schedule_avatar_refresh)
         )
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))

@@ -36,9 +36,16 @@ export interface AuroraCalendarConfig {
   background_image_opacity: number;
   background_blur: number;
 
+  // Toolbar
+  show_filter: boolean;
+  show_view_selector: boolean;
+  show_jump_to: boolean;
+  show_nav: boolean;
+
   // Features
   show_weather: boolean;
   weather_icon_style: WeatherIconStyle;
+  show_fab: boolean;
 }
 
 export const CONFIG_DEFAULTS: Omit<AuroraCalendarConfig, "type" | "integration"> = {
@@ -60,8 +67,13 @@ export const CONFIG_DEFAULTS: Omit<AuroraCalendarConfig, "type" | "integration">
   background_image: "",
   background_image_opacity: 35,
   background_blur: 0,
+  show_filter: true,
+  show_view_selector: true,
+  show_jump_to: true,
+  show_nav: true,
   show_weather: true,
   weather_icon_style: "static",
+  show_fab: true,
 };
 
 export interface CalendarInfo {

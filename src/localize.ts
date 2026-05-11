@@ -95,6 +95,17 @@ type TranslationKey =
   | "visibleEndHour"
   | "visibleEndHourHelper"
   | "visibleStartHour"
+  | "showFab"
+  | "showFabDesc"
+  | "showFilter"
+  | "showFilterDesc"
+  | "showJumpTo"
+  | "showJumpToDesc"
+  | "showNav"
+  | "showNavDesc"
+  | "showViewSelector"
+  | "showViewSelectorDesc"
+  | "toolbar"
   | "weatherForecast"
   | "weatherForecastDesc"
   | "weatherIconStyle"
@@ -199,6 +210,17 @@ const TRANSLATIONS: Record<string, TranslationMap> = {
     visibleEndHour: "Visible end hour",
     visibleEndHourHelper: "Exclusive end; 22:00 shows through 9:59 PM.",
     visibleStartHour: "Visible start hour",
+    showFab: "Add-event button",
+    showFabDesc: "Show the floating + button for creating new events.",
+    showFilter: "Calendar filter",
+    showFilterDesc: "Show the filter button for toggling calendars on/off.",
+    showJumpTo: "Jump to date",
+    showJumpToDesc: "Show the date-picker button for jumping to a specific date.",
+    showNav: "Navigation arrows",
+    showNavDesc: "Show the previous/today/next navigation controls.",
+    showViewSelector: "View selector",
+    showViewSelectorDesc: "Show the dropdown for switching between Month, Week, and other views.",
+    toolbar: "Toolbar",
     weatherForecast: "Weather forecast",
     weatherForecastDesc: "Show daily condition icon and temperature on each day cell.",
     weatherIconStyle: "Weather icon style",

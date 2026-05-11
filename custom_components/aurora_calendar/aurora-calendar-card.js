@@ -91,8 +91,13 @@ const CONFIG_DEFAULTS = {
     background_image: "",
     background_image_opacity: 35,
     background_blur: 0,
+    show_filter: true,
+    show_view_selector: true,
+    show_jump_to: true,
+    show_nav: true,
     show_weather: true,
     weather_icon_style: "static",
+    show_fab: true,
 };
 
 /**
@@ -235,6 +240,17 @@ const TRANSLATIONS = {
         visibleEndHour: "Visible end hour",
         visibleEndHourHelper: "Exclusive end; 22:00 shows through 9:59 PM.",
         visibleStartHour: "Visible start hour",
+        showFab: "Add-event button",
+        showFabDesc: "Show the floating + button for creating new events.",
+        showFilter: "Calendar filter",
+        showFilterDesc: "Show the filter button for toggling calendars on/off.",
+        showJumpTo: "Jump to date",
+        showJumpToDesc: "Show the date-picker button for jumping to a specific date.",
+        showNav: "Navigation arrows",
+        showNavDesc: "Show the previous/today/next navigation controls.",
+        showViewSelector: "View selector",
+        showViewSelectorDesc: "Show the dropdown for switching between Month, Week, and other views.",
+        toolbar: "Toolbar",
         weatherForecast: "Weather forecast",
         weatherForecastDesc: "Show daily condition icon and temperature on each day cell.",
         weatherIconStyle: "Weather icon style",
@@ -5205,7 +5221,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         <div class=${surfaceClasses} style=${this._appearanceStyle()}>
 
           <div class="top-toolbar">
-            <div class="filter-control-wrap">
+            ${this._config.show_filter ? b `<div class="filter-control-wrap">
               <button
                 class="filter-trigger ${this._filterMenuOpen ? "open" : ""}"
                 @click=${this._toggleFilterMenu}
@@ -5254,12 +5270,12 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         })}
                 </div>
               ` : A}
-            </div>
+            </div>` : A}
 
             <span class="view-title">${title}</span>
 
             <div class="toolbar-actions">
-              <div class="view-control-wrap">
+              ${this._config.show_view_selector ? b `<div class="view-control-wrap">
                 <button
                   class="view-trigger ${this._viewMenuOpen ? "open" : ""}"
                   @click=${this._toggleViewMenu}
@@ -5284,9 +5300,9 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                     `)}
                   </div>
                 ` : A}
-              </div>
+              </div>` : A}
 
-              <div class="jump-control-wrap">
+              ${this._config.show_jump_to ? b `<div class="jump-control-wrap">
                 <button
                   class="jump-trigger ${this._jumpMenuOpen ? "open" : ""}"
                   @click=${this._toggleJumpMenu}
@@ -5318,9 +5334,9 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                     </label>
                   </div>
                 ` : A}
-              </div>
+              </div>` : A}
 
-              <div class="nav-controls" aria-label=${t(locale, "calendarNavigation")}>
+              ${this._config.show_nav ? b `<div class="nav-controls" aria-label=${t(locale, "calendarNavigation")}>
                 <button class="nav-btn" @click=${() => this._navigate(-1)} aria-label=${t(locale, "previous")}>
                   &#8249;
                 </button>
@@ -5328,7 +5344,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                 <button class="nav-btn" @click=${() => this._navigate(1)} aria-label=${t(locale, "next")}>
                   &#8250;
                 </button>
-              </div>
+              </div>` : A}
             </div>
           </div>
           <!-- Calendar grid -->
@@ -5406,6 +5422,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                   </div>
                 `}
           </div>
+          ${this._config.show_fab ? b `
           <button
             class="create-trigger floating-create-trigger"
             @click=${this._openCreateDialog}
@@ -5415,6 +5432,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
           >
             <ha-icon icon="mdi:calendar-plus"></ha-icon>
           </button>
+          ` : A}
           ${this._renderEventDialog(locale)}
           ${this._renderEditDialog(locale)}
           ${this._renderCreateDialog(locale)}
@@ -7095,6 +7113,52 @@ let AuroraCalendarCardEditor = class AuroraCalendarCardEditor extends i {
         </div>
       </ha-expansion-panel>
 
+      <!-- Toolbar -->
+      <ha-expansion-panel outlined .expanded=${true}>
+        <div slot="header" class="panel-header">
+          <ha-icon icon="mdi:toolbar"></ha-icon>
+          ${t(locale, "toolbar")}
+        </div>
+
+        <div class="panel-content">
+          <ha-settings-row>
+            <span slot="heading">${t(locale, "showFilter")}</span>
+            <span slot="description">${t(locale, "showFilterDesc")}</span>
+            <ha-switch
+              .checked=${this._config.show_filter}
+              @change=${(e) => this._set("show_filter", e.target.checked)}
+            ></ha-switch>
+          </ha-settings-row>
+
+          <ha-settings-row>
+            <span slot="heading">${t(locale, "showViewSelector")}</span>
+            <span slot="description">${t(locale, "showViewSelectorDesc")}</span>
+            <ha-switch
+              .checked=${this._config.show_view_selector}
+              @change=${(e) => this._set("show_view_selector", e.target.checked)}
+            ></ha-switch>
+          </ha-settings-row>
+
+          <ha-settings-row>
+            <span slot="heading">${t(locale, "showJumpTo")}</span>
+            <span slot="description">${t(locale, "showJumpToDesc")}</span>
+            <ha-switch
+              .checked=${this._config.show_jump_to}
+              @change=${(e) => this._set("show_jump_to", e.target.checked)}
+            ></ha-switch>
+          </ha-settings-row>
+
+          <ha-settings-row>
+            <span slot="heading">${t(locale, "showNav")}</span>
+            <span slot="description">${t(locale, "showNavDesc")}</span>
+            <ha-switch
+              .checked=${this._config.show_nav}
+              @change=${(e) => this._set("show_nav", e.target.checked)}
+            ></ha-switch>
+          </ha-settings-row>
+        </div>
+      </ha-expansion-panel>
+
       <!-- Features -->
       <ha-expansion-panel outlined .expanded=${true}>
         <div slot="header" class="panel-header">
@@ -7103,6 +7167,15 @@ let AuroraCalendarCardEditor = class AuroraCalendarCardEditor extends i {
         </div>
 
         <div class="panel-content">
+          <ha-settings-row>
+            <span slot="heading">${t(locale, "showFab")}</span>
+            <span slot="description">${t(locale, "showFabDesc")}</span>
+            <ha-switch
+              .checked=${this._config.show_fab}
+              @change=${(e) => this._set("show_fab", e.target.checked)}
+            ></ha-switch>
+          </ha-settings-row>
+
           <ha-settings-row>
             <span slot="heading">${t(locale, "weatherForecast")}</span>
             <span slot="description">${t(locale, "weatherForecastDesc")}</span>

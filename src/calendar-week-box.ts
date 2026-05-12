@@ -1,9 +1,9 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import type { CalendarEvent, AuroraCalendarConfig, PersonInfo, WeatherByDate } from "./types.js";
 import { contrastText, shadeColor } from "./color-utils.js";
 import { eventHasConcluded } from "./event-utils.js";
-import { dateKey, localToday } from "./utils.js";
+import { dateKey, localToday, retryImgOnError } from "./utils.js";
 import { formatFullWeekRange, formatMonth, formatWeekday, t } from "./localize.js";
 import { weatherSvgUrl, weatherTempParts } from "./weather-utils.js";
 
@@ -374,9 +374,8 @@ export class AuroraCalendarWeekBox extends LitElement {
     const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
     return html`
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${person?.avatar
-          ? html`<img src="${person.avatar}" alt="${event.person}" />`
-          : html`${initial}`}
+        ${initial}
+        ${person?.avatar ? html`<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : nothing}
       </span>
     `;
   }
@@ -698,9 +697,12 @@ export class AuroraCalendarWeekBox extends LitElement {
     }
 
     .event-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
     .empty-action {

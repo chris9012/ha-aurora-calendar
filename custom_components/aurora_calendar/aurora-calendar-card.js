@@ -981,6 +981,16 @@ function persistView(key, viewMode) {
         // Storage full or unavailable — silently ignore
     }
 }
+// Retry an img that failed to load (e.g. HA image service not ready on startup).
+// Clears the src (removes broken-image icon) then restores it after a delay so
+// the browser makes a fresh, uncached request.
+function retryImgOnError(e) {
+    const img = e.target;
+    const src = img.src;
+    img.removeAttribute("src");
+    setTimeout(() => { if (img.isConnected)
+        img.src = src; }, 5000);
+}
 
 function eventHasConcluded(event, now = new Date()) {
     if (event.all_day) {
@@ -1497,9 +1507,8 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
         const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${person?.avatar
-            ? b `<img src="${person.avatar}" alt="${event.person}" />`
-            : b `${initial}`}
+        ${initial}
+        ${person?.avatar ? b `<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
     }
@@ -1822,9 +1831,12 @@ AuroraCalendarMonth.styles = i$3 `
     }
 
     .event-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
     .weather-pill {
@@ -2260,9 +2272,8 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
         const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${person?.avatar
-            ? b `<img src="${person.avatar}" alt="${event.person}" />`
-            : b `${initial}`}
+        ${initial}
+        ${person?.avatar ? b `<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
     }
@@ -2583,9 +2594,12 @@ AuroraCalendarWeekBox.styles = i$3 `
     }
 
     .event-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
     .empty-action {
@@ -3060,9 +3074,8 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
         const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${person?.avatar
-            ? b `<img src="${person.avatar}" alt="${event.person}" />`
-            : b `${initial}`}
+        ${initial}
+        ${person?.avatar ? b `<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
     }
@@ -3800,9 +3813,12 @@ AuroraCalendarTimeGrid.styles = i$3 `
     }
 
     .event-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
     /* ── Current-time bar ── */
@@ -4091,9 +4107,8 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         const initial = (person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-dialog-avatar" style="--person-color: ${color}">
-        ${avatarUrl
-            ? b `<img src="${avatarUrl}" alt="${person}" />`
-            : b `${initial}`}
+        ${initial}
+        ${avatarUrl ? b `<img src="${avatarUrl}" alt="${person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
     }
@@ -4238,7 +4253,15 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
         return (this.hass?.states[id]?.attributes ?? {});
     }
     get _persons() {
-        return this._configAttrs.persons ?? [];
+        const raw = this._configAttrs.persons ?? [];
+        return raw.map((p) => {
+            // Always read entity_picture from live hass state — the coordinator's
+            // cached URL can have a stale hash that HA regenerates after restart.
+            const livePic = p.person_entity_id
+                ? String(this.hass?.states[p.person_entity_id]?.attributes?.entity_picture ?? "")
+                : "";
+            return livePic ? { ...p, avatar: livePic } : p;
+        });
     }
     get _filters() {
         return (this._configAttrs.filters ?? {});
@@ -5053,9 +5076,8 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
             const selected = this._calendarByEntity(draft.calendarEntity) || writableCalendars[0];
             return b `
                       <span class="option-avatar" style="--person-color: ${selected?.color || "var(--primary-color)"}">
-                        ${selected?.avatar
-                ? b `<img src="${selected.avatar}" alt="${selected.person}" />`
-                : b `${(selected?.person || "?").charAt(0).toUpperCase()}`}
+                        ${(selected?.person || "?").charAt(0).toUpperCase()}
+                        ${selected?.avatar ? b `<img src="${selected.avatar}" alt="${selected.person}" @error=${retryImgOnError} />` : A}
                       </span>
                       <span class="option-name">${selected?.person || selected?.entity_id || t(locale, "calendar")}</span>
                       <span class="chevron">⌄</span>
@@ -5074,9 +5096,8 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                         aria-checked=${calendar.entity_id === draft.calendarEntity}
                       >
                         <span class="option-avatar">
-                          ${calendar.avatar
-            ? b `<img src="${calendar.avatar}" alt="${calendar.person}" />`
-            : b `${(calendar.person || calendar.entity_id).charAt(0).toUpperCase()}`}
+                          ${(calendar.person || calendar.entity_id).charAt(0).toUpperCase()}
+                          ${calendar.avatar ? b `<img src="${calendar.avatar}" alt="${calendar.person}" @error=${retryImgOnError} />` : A}
                         </span>
                         <span class="option-name">${calendar.person || calendar.entity_id}</span>
                         <span class="option-check">${calendar.entity_id === draft.calendarEntity ? "✓" : ""}</span>
@@ -5272,9 +5293,8 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                 <span class="avatar-stack">
                   ${filterStack.map((p) => b `
                     <span class="stack-avatar" style="--person-color: ${p.color}">
-                      ${p.avatar
-            ? b `<img src="${p.avatar}" alt="${p.person}" />`
-            : b `${p.person[0].toUpperCase()}`}
+                      ${p.person[0].toUpperCase()}
+                      ${p.avatar ? b `<img src="${p.avatar}" alt="${p.person}" @error=${retryImgOnError} />` : A}
                     </span>
                   `)}
                   ${hiddenFilterCount > 0 || activePersons.length === 0 ? b `
@@ -5299,9 +5319,8 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                         aria-checked=${active}
                       >
                         <span class="option-avatar">
-                          ${p.avatar
-                ? b `<img src="${p.avatar}" alt="${p.person}" />`
-                : b `${p.person[0].toUpperCase()}`}
+                          ${p.person[0].toUpperCase()}
+                          ${p.avatar ? b `<img src="${p.avatar}" alt="${p.person}" @error=${retryImgOnError} />` : A}
                         </span>
                         <span class="option-name">${p.person}</span>
                         <span class="option-count">${eventCountsByPerson[p.person] || 0}</span>
@@ -5706,6 +5725,7 @@ AuroraCalendarCard.styles = i$3 `
     }
 
     .stack-avatar {
+      position: relative;
       width: 28px;
       height: 28px;
       display: flex;
@@ -5729,9 +5749,12 @@ AuroraCalendarCard.styles = i$3 `
 
     .stack-avatar img,
     .option-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
     .stack-more {
@@ -5888,12 +5911,14 @@ AuroraCalendarCard.styles = i$3 `
     }
 
     .option-avatar {
+      position: relative;
       width: 30px;
       height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
+      overflow: hidden;
       background: var(--person-color, var(--primary-color));
       color: #fff;
       font-size: 0.76rem;
@@ -6235,6 +6260,7 @@ AuroraCalendarCard.styles = i$3 `
     }
 
     .event-dialog-avatar {
+      position: relative;
       width: 28px;
       height: 28px;
       display: inline-flex;
@@ -6250,6 +6276,8 @@ AuroraCalendarCard.styles = i$3 `
     }
 
     .event-dialog-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;

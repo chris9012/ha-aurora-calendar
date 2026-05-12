@@ -30,6 +30,7 @@ import {
   loadPersistedView,
   localToday,
   persistView,
+  retryImgOnError,
 } from "./utils.js";
 import { fetchEventsForRange } from "./event-utils.js";
 import { fetchDailyWeather } from "./weather-utils.js";
@@ -284,9 +285,8 @@ export class AuroraCalendarCard extends LitElement {
     const initial = (person || "?").charAt(0).toUpperCase();
     return html`
       <span class="event-dialog-avatar" style="--person-color: ${color}">
-        ${avatarUrl
-          ? html`<img src="${avatarUrl}" alt="${person}" />`
-          : html`${initial}`}
+        ${initial}
+        ${avatarUrl ? html`<img src="${avatarUrl}" alt="${person}" @error=${retryImgOnError} />` : nothing}
       </span>
     `;
   }
@@ -470,7 +470,15 @@ export class AuroraCalendarCard extends LitElement {
   }
 
   private get _persons(): PersonInfo[] {
-    return (this._configAttrs.persons as PersonInfo[] | undefined) ?? [];
+    const raw = (this._configAttrs.persons as PersonInfo[] | undefined) ?? [];
+    return raw.map((p) => {
+      // Always read entity_picture from live hass state — the coordinator's
+      // cached URL can have a stale hash that HA regenerates after restart.
+      const livePic = p.person_entity_id
+        ? String(this.hass?.states[p.person_entity_id]?.attributes?.entity_picture ?? "")
+        : "";
+      return livePic ? { ...p, avatar: livePic } : p;
+    });
   }
 
   private get _filters(): Record<string, boolean> {
@@ -1333,9 +1341,8 @@ export class AuroraCalendarCard extends LitElement {
                     const selected = this._calendarByEntity(draft.calendarEntity) || writableCalendars[0];
                     return html`
                       <span class="option-avatar" style="--person-color: ${selected?.color || "var(--primary-color)"}">
-                        ${selected?.avatar
-                          ? html`<img src="${selected.avatar}" alt="${selected.person}" />`
-                          : html`${(selected?.person || "?").charAt(0).toUpperCase()}`}
+                        ${(selected?.person || "?").charAt(0).toUpperCase()}
+                        ${selected?.avatar ? html`<img src="${selected.avatar}" alt="${selected.person}" @error=${retryImgOnError} />` : nothing}
                       </span>
                       <span class="option-name">${selected?.person || selected?.entity_id || t(locale, "calendar")}</span>
                       <span class="chevron">⌄</span>
@@ -1354,9 +1361,8 @@ export class AuroraCalendarCard extends LitElement {
                         aria-checked=${calendar.entity_id === draft.calendarEntity}
                       >
                         <span class="option-avatar">
-                          ${calendar.avatar
-                            ? html`<img src="${calendar.avatar}" alt="${calendar.person}" />`
-                            : html`${(calendar.person || calendar.entity_id).charAt(0).toUpperCase()}`}
+                          ${(calendar.person || calendar.entity_id).charAt(0).toUpperCase()}
+                          ${calendar.avatar ? html`<img src="${calendar.avatar}" alt="${calendar.person}" @error=${retryImgOnError} />` : nothing}
                         </span>
                         <span class="option-name">${calendar.person || calendar.entity_id}</span>
                         <span class="option-check">${calendar.entity_id === draft.calendarEntity ? "✓" : ""}</span>
@@ -1556,9 +1562,8 @@ export class AuroraCalendarCard extends LitElement {
                 <span class="avatar-stack">
                   ${filterStack.map((p) => html`
                     <span class="stack-avatar" style="--person-color: ${p.color}">
-                      ${p.avatar
-                        ? html`<img src="${p.avatar}" alt="${p.person}" />`
-                        : html`${p.person[0].toUpperCase()}`}
+                      ${p.person[0].toUpperCase()}
+                      ${p.avatar ? html`<img src="${p.avatar}" alt="${p.person}" @error=${retryImgOnError} />` : nothing}
                     </span>
                   `)}
                   ${hiddenFilterCount > 0 || activePersons.length === 0 ? html`
@@ -1583,9 +1588,8 @@ export class AuroraCalendarCard extends LitElement {
                         aria-checked=${active}
                       >
                         <span class="option-avatar">
-                          ${p.avatar
-                            ? html`<img src="${p.avatar}" alt="${p.person}" />`
-                            : html`${p.person[0].toUpperCase()}`}
+                          ${p.person[0].toUpperCase()}
+                          ${p.avatar ? html`<img src="${p.avatar}" alt="${p.person}" @error=${retryImgOnError} />` : nothing}
                         </span>
                         <span class="option-name">${p.person}</span>
                         <span class="option-count">${eventCountsByPerson[p.person] || 0}</span>
@@ -1993,6 +1997,7 @@ export class AuroraCalendarCard extends LitElement {
     }
 
     .stack-avatar {
+      position: relative;
       width: 28px;
       height: 28px;
       display: flex;
@@ -2016,9 +2021,12 @@ export class AuroraCalendarCard extends LitElement {
 
     .stack-avatar img,
     .option-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: inherit;
     }
 
     .stack-more {
@@ -2175,12 +2183,14 @@ export class AuroraCalendarCard extends LitElement {
     }
 
     .option-avatar {
+      position: relative;
       width: 30px;
       height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
+      overflow: hidden;
       background: var(--person-color, var(--primary-color));
       color: #fff;
       font-size: 0.76rem;
@@ -2522,6 +2532,7 @@ export class AuroraCalendarCard extends LitElement {
     }
 
     .event-dialog-avatar {
+      position: relative;
       width: 28px;
       height: 28px;
       display: inline-flex;
@@ -2537,6 +2548,8 @@ export class AuroraCalendarCard extends LitElement {
     }
 
     .event-dialog-avatar img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;

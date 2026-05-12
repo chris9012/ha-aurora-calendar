@@ -134,3 +134,13 @@ export function persistView(key: string, viewMode: ViewMode): void {
     // Storage full or unavailable — silently ignore
   }
 }
+
+// Retry an img that failed to load (e.g. HA image service not ready on startup).
+// Clears the src (removes broken-image icon) then restores it after a delay so
+// the browser makes a fresh, uncached request.
+export function retryImgOnError(e: Event): void {
+  const img = e.target as HTMLImageElement;
+  const src = img.src;
+  img.removeAttribute("src");
+  setTimeout(() => { if (img.isConnected) img.src = src; }, 5000);
+}

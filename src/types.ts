@@ -4,6 +4,7 @@ export type WeekStart = "sunday" | "monday";
 export type TimeFormat = "12h" | "24h";
 export type WeatherIconStyle = "static" | "animated";
 export type HeightMode = "auto" | "ha" | "fixed" | "natural";
+export type EventTextColor = "auto" | "white" | "dark";
 
 export interface AuroraBackgroundMedia {
   media_content_id: string;
@@ -23,6 +24,7 @@ export interface AuroraCalendarConfig {
   dim_past_events: boolean;
   show_event_time: boolean;
   show_location: boolean;
+  event_text_color: EventTextColor;
   time_format: TimeFormat;
   visible_start_hour: number;
   visible_end_hour: number;
@@ -56,6 +58,7 @@ export const CONFIG_DEFAULTS: Omit<AuroraCalendarConfig, "type" | "integration">
   dim_past_events: true,
   show_event_time: true,
   show_location: true,
+  event_text_color: "auto",
   time_format: "12h",
   visible_start_hour: 6,
   visible_end_hour: 22,

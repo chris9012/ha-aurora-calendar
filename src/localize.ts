@@ -56,6 +56,10 @@ type TranslationKey =
   | "removeBackgroundImage"
   | "serif"
   | "showCalendars"
+  | "eventTextColor"
+  | "eventTextColorAuto"
+  | "eventTextColorWhite"
+  | "eventTextColorDark"
   | "showEventTimes"
   | "showEventTimesDesc"
   | "scheduleWindow"
@@ -174,6 +178,10 @@ const TRANSLATIONS: Record<string, TranslationMap> = {
     removeBackgroundImage: "Remove selected image",
     serif: "Serif",
     showCalendars: "Show calendars",
+    eventTextColor: "Event text color",
+    eventTextColorAuto: "Auto (contrast)",
+    eventTextColorWhite: "Always white",
+    eventTextColorDark: "Always dark",
     showEventTimes: "Show event times",
     showEventTimesDesc: "Display start time on event chips.",
     scheduleWindow: "Schedule window",

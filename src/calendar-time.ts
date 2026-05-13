@@ -223,7 +223,7 @@ export class AuroraCalendarTimeGrid extends LitElement {
                   ${allDay
                     .filter((e) => this._onDay(e, day))
                     .map((e) => {
-                      const textColor = contrastText(e.color);
+                      const textColor = this._eventTextColor(e.color);
                       const dim = this.config.dim_past_events && eventHasConcluded(e);
                       const avatar = this._personAvatar(e);
                       return html`
@@ -283,7 +283,7 @@ export class AuroraCalendarTimeGrid extends LitElement {
                       const showT = this.config.show_event_time;
                       const s  = new Date(p.event.start);
                       const en = new Date(p.event.end);
-                      const textColor = contrastText(p.event.color);
+                      const textColor = this._eventTextColor(p.event.color);
                       const avatar = this._personAvatar(p.event);
                       const timeStr = showT
                         ? `${fmtTime(s, this.config.time_format)} – ${fmtTime(en, this.config.time_format)}`
@@ -349,6 +349,12 @@ export class AuroraCalendarTimeGrid extends LitElement {
     const dayStart = new Date(day); dayStart.setHours(0, 0, 0, 0);
     const dayEnd   = new Date(day); dayEnd.setHours(23, 59, 59, 999);
     return s <= dayEnd && en > dayStart;
+  }
+
+  private _eventTextColor(bgColor: string): string {
+    if (this.config.event_text_color === "white") return "#ffffff";
+    if (this.config.event_text_color === "dark") return "#1f2933";
+    return contrastText(bgColor);
   }
 
   private _personAvatar(event: CalendarEvent) {
@@ -522,7 +528,7 @@ export class AuroraCalendarTimeGrid extends LitElement {
 
   private _renderDragPreview(drag: DragState, dayCount: number) {
     const event = drag.event;
-    const textColor = contrastText(event.color);
+    const textColor = this._eventTextColor(event.color);
     const start = this._dateTimeFromPreview(drag.previewDayIndex, drag.previewStartMin, drag.startHour);
     const end = new Date(start.getTime() + drag.durationMs);
     const timeStr = `${fmtTime(start, this.config.time_format)} – ${fmtTime(end, this.config.time_format)}`;

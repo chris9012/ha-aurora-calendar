@@ -167,7 +167,7 @@ export class AuroraCalendarMonth extends LitElement {
     const time = this.config.show_event_time
       ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange(e, this.config.time_format, this.locale))
       : "";
-    const textColor = contrastText(e.color);
+    const textColor = this._eventTextColor(e.color);
     const avatar = this._personAvatar(e);
     return html`
       <div
@@ -372,6 +372,12 @@ export class AuroraCalendarMonth extends LitElement {
       bubbles: true,
       composed: true,
     }));
+  }
+
+  private _eventTextColor(bgColor: string): string {
+    if (this.config.event_text_color === "white") return "#ffffff";
+    if (this.config.event_text_color === "dark") return "#1f2933";
+    return contrastText(bgColor);
   }
 
   private _personAvatar(event: CalendarEvent) {

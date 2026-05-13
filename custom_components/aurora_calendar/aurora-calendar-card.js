@@ -79,6 +79,7 @@ const CONFIG_DEFAULTS = {
     dim_past_events: true,
     show_event_time: true,
     show_location: true,
+    event_text_color: "auto",
     time_format: "12h",
     visible_start_hour: 6,
     visible_end_hour: 22,
@@ -202,6 +203,10 @@ const TRANSLATIONS = {
         removeBackgroundImage: "Remove selected image",
         serif: "Serif",
         showCalendars: "Show calendars",
+        eventTextColor: "Event text color",
+        eventTextColorAuto: "Auto (contrast)",
+        eventTextColorWhite: "Always white",
+        eventTextColorDark: "Always dark",
         showEventTimes: "Show event times",
         showEventTimesDesc: "Display start time on event chips.",
         scheduleWindow: "Schedule window",
@@ -1323,7 +1328,7 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
         const time = this.config.show_event_time
             ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange$1(e, this.config.time_format, this.locale))
             : "";
-        const textColor = contrastText(e.color);
+        const textColor = this._eventTextColor(e.color);
         const avatar = this._personAvatar(e);
         return b `
       <div
@@ -1512,6 +1517,13 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
             bubbles: true,
             composed: true,
         }));
+    }
+    _eventTextColor(bgColor) {
+        if (this.config.event_text_color === "white")
+            return "#ffffff";
+        if (this.config.event_text_color === "dark")
+            return "#1f2933";
+        return contrastText(bgColor);
     }
     _personAvatar(event) {
         const person = this.persons.find((p) => p.person === event.person);
@@ -2114,7 +2126,7 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
         const time = this.config.show_event_time
             ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange(e, this.config.time_format, this.locale))
             : "";
-        const textColor = contrastText(e.color);
+        const textColor = this._eventTextColor(e.color);
         const avatar = this._personAvatar(e);
         return b `
       <div
@@ -2274,6 +2286,13 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
             bubbles: true,
             composed: true,
         }));
+    }
+    _eventTextColor(bgColor) {
+        if (this.config.event_text_color === "white")
+            return "#ffffff";
+        if (this.config.event_text_color === "dark")
+            return "#1f2933";
+        return contrastText(bgColor);
     }
     _personAvatar(event) {
         const person = this.persons.find((p) => p.person === event.person);
@@ -2947,7 +2966,7 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
                   ${allDay
             .filter((e) => this._onDay(e, day))
             .map((e) => {
-            const textColor = contrastText(e.color);
+            const textColor = this._eventTextColor(e.color);
             const dim = this.config.dim_past_events && eventHasConcluded(e);
             const avatar = this._personAvatar(e);
             return b `
@@ -3006,7 +3025,7 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
                 const showT = this.config.show_event_time;
                 const s = new Date(p.event.start);
                 const en = new Date(p.event.end);
-                const textColor = contrastText(p.event.color);
+                const textColor = this._eventTextColor(p.event.color);
                 const avatar = this._personAvatar(p.event);
                 const timeStr = showT
                     ? `${fmtTime(s, this.config.time_format)} – ${fmtTime(en, this.config.time_format)}`
@@ -3071,6 +3090,13 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
         const dayEnd = new Date(day);
         dayEnd.setHours(23, 59, 59, 999);
         return s <= dayEnd && en > dayStart;
+    }
+    _eventTextColor(bgColor) {
+        if (this.config.event_text_color === "white")
+            return "#ffffff";
+        if (this.config.event_text_color === "dark")
+            return "#1f2933";
+        return contrastText(bgColor);
     }
     _personAvatar(event) {
         const person = this.persons.find((p) => p.person === event.person);
@@ -3183,7 +3209,7 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
     }
     _renderDragPreview(drag, dayCount) {
         const event = drag.event;
-        const textColor = contrastText(event.color);
+        const textColor = this._eventTextColor(event.color);
         const start = this._dateTimeFromPreview(drag.previewDayIndex, drag.previewStartMin, drag.startHour);
         const end = new Date(start.getTime() + drag.durationMs);
         const timeStr = `${fmtTime(start, this.config.time_format)} – ${fmtTime(end, this.config.time_format)}`;
@@ -7050,6 +7076,30 @@ let AuroraCalendarCardEditor = class AuroraCalendarCardEditor extends i {
                 @change=${(e) => this._set("show_location", e.target.checked)}
               ></ha-switch>
             </ha-settings-row>
+
+            <label class="selector-control">
+              <span>${t(locale, "eventTextColor")}</span>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{
+            select: {
+                mode: "dropdown",
+                options: [
+                    { value: "auto", label: t(locale, "eventTextColorAuto") },
+                    { value: "white", label: t(locale, "eventTextColorWhite") },
+                    { value: "dark", label: t(locale, "eventTextColorDark") },
+                ],
+            },
+        }}
+                .value=${this._config.event_text_color}
+                @value-changed=${(e) => {
+            const value = e.detail?.value;
+            if (value === "auto" || value === "white" || value === "dark") {
+                this._set("event_text_color", value);
+            }
+        }}
+              ></ha-selector>
+            </label>
 
             <label class="selector-control">
               <span>${t(locale, "timeFormat")}</span>

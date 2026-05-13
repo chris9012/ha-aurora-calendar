@@ -13,6 +13,7 @@ import type {
   HomeAssistant,
   PersonInfo,
   TimeFormat,
+  EventTextColor,
   ViewMode,
   WeatherByDate,
   WeatherIconStyle,
@@ -3265,6 +3266,30 @@ export class AuroraCalendarCardEditor extends LitElement {
                 @change=${(e: Event) => this._set("show_location", (e.target as HTMLInputElement).checked)}
               ></ha-switch>
             </ha-settings-row>
+
+            <label class="selector-control">
+              <span>${t(locale, "eventTextColor")}</span>
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{
+                  select: {
+                    mode: "dropdown",
+                    options: [
+                      { value: "auto", label: t(locale, "eventTextColorAuto") },
+                      { value: "white", label: t(locale, "eventTextColorWhite") },
+                      { value: "dark", label: t(locale, "eventTextColorDark") },
+                    ],
+                  },
+                }}
+                .value=${this._config.event_text_color}
+                @value-changed=${(e: CustomEvent<{ value?: string }>) => {
+                  const value = e.detail?.value;
+                  if (value === "auto" || value === "white" || value === "dark") {
+                    this._set("event_text_color", value as EventTextColor);
+                  }
+                }}
+              ></ha-selector>
+            </label>
 
             <label class="selector-control">
               <span>${t(locale, "timeFormat")}</span>

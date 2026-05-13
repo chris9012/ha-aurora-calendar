@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 _LOGGER = logging.getLogger(__name__)
 
-VIEW_MODES = ["Month", "Week", "Biweek", "Today", "Next 7 Days"]
+VIEW_MODES = ["Month", "Week", "Biweek", "Rolling 2 Weeks", "Today", "Next 7 Days"]
 DEFAULT_VIEW_MODE = "Month"
 
 # Pre-seeded from existing HA input_text color entities

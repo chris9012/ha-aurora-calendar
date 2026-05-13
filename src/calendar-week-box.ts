@@ -124,12 +124,11 @@ export class AuroraCalendarWeekBox extends LitElement {
                 >
                 ${grouped.allDay.length ? html`
                   <div class="all-day-stack ${focusEventId ? "yields-to-focus" : ""}">
-                    <div class="all-day-label">All day</div>
-                    ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, true))}
+                    ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, true, isPast))}
                   </div>
                 ` : ""}
-                ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, false))}
-                ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, false))}
+                ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, false, isPast))}
+                ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, false, isPast))}
                 </div>
               </div>
             </div>
@@ -183,13 +182,12 @@ export class AuroraCalendarWeekBox extends LitElement {
       .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
   }
 
-  private _renderEventChip(e: CalendarEvent, focusEventId: string, asAllDay: boolean) {
+  private _renderEventChip(e: CalendarEvent, focusEventId: string, asAllDay: boolean, isPast = false) {
     const concluded = eventHasConcluded(e);
-    const dim = this.config.dim_past_events && concluded;
-    const time =
-      this.config.show_event_time && !e.all_day && !asAllDay
-        ? fmtTimeRange(e, this.config.time_format, this.locale)
-        : "";
+    const dim = this.config.dim_past_events && (concluded || (e.all_day && isPast));
+    const time = this.config.show_event_time
+      ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange(e, this.config.time_format, this.locale))
+      : "";
     const textColor = contrastText(e.color);
     const avatar = this._personAvatar(e);
     return html`
@@ -371,10 +369,15 @@ export class AuroraCalendarWeekBox extends LitElement {
   private _personAvatar(event: CalendarEvent) {
     const person = this.persons.find((p) => p.person === event.person);
     const color = person?.color || event.color;
-    const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
+    const t = event.title.toLowerCase();
+    const avatarContent = t.includes("birthday")
+      ? html`<ha-icon icon="mdi:cake-variant"></ha-icon>`
+      : t.includes("anniversary")
+        ? html`<ha-icon icon="mdi:glass-cheers"></ha-icon>`
+        : (person?.person || event.person || "?").charAt(0).toUpperCase();
     return html`
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${initial}
+        ${avatarContent}
         ${person?.avatar ? html`<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : nothing}
       </span>
     `;
@@ -448,7 +451,7 @@ export class AuroraCalendarWeekBox extends LitElement {
     }
 
     .dow {
-      font-size: 1.05rem;
+      font-size: 1.3rem;
       font-weight: 700;
       letter-spacing: 0.01em;
       line-height: 1;
@@ -593,8 +596,8 @@ export class AuroraCalendarWeekBox extends LitElement {
     .chip {
       display: block;
       position: relative;
-      min-height: 40px;
-      padding: var(--aurora-event-padding, 5px 36px 5px 7px);
+      min-height: 54px;
+      padding: var(--aurora-event-padding, 8px 56px 8px 9px);
       border-radius: var(--aurora-event-radius, 8px);
       margin-bottom: 5px;
       overflow: hidden;
@@ -609,13 +612,7 @@ export class AuroraCalendarWeekBox extends LitElement {
     }
 
     .chip.all-day-chip {
-      min-height: 0;
-      height: 30px;
-      padding-top: 4px;
-      padding-bottom: 4px;
       margin-bottom: 2px;
-      font-size: var(--aurora-allday-font-size, 13px);
-      line-height: 1.05;
     }
 
     .all-day-stack .chip.all-day-chip:last-child {
@@ -631,16 +628,7 @@ export class AuroraCalendarWeekBox extends LitElement {
       pointer-events: none;
     }
 
-    .chip.all-day-chip .chip-title {
-      font-size: 1em;
-      line-height: 1.05;
-    }
 
-    .chip.all-day-chip .event-avatar {
-      width: 22px;
-      height: 22px;
-      font-size: 0.58rem;
-    }
 
     .chip-title,
     .chip-time {
@@ -656,15 +644,15 @@ export class AuroraCalendarWeekBox extends LitElement {
 
     .chip-time {
       margin-top: 2px;
-      font-size: 0.82em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 700;
       opacity: 0.82;
     }
 
     .chip-location {
       margin-top: 1px;
-      font-size: 0.78em;
-      font-weight: 500;
+      font-size: 0.86em;
+      font-weight: 700;
       opacity: 0.72;
       white-space: nowrap;
       overflow: hidden;
@@ -680,8 +668,8 @@ export class AuroraCalendarWeekBox extends LitElement {
       right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 26px;
-      height: 26px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -703,6 +691,11 @@ export class AuroraCalendarWeekBox extends LitElement {
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
+    }
+
+    .event-avatar ha-icon {
+      --mdc-icon-size: 26px;
+      color: #fff;
     }
 
     .empty-action {

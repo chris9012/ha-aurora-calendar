@@ -69,6 +69,7 @@ type TranslationKey =
   | "twentyFourHour"
   | "unconfigured"
   | "viewBiweek"
+  | "viewRolling2Weeks"
   | "viewMonth"
   | "viewNext7Days"
   | "viewToday"
@@ -186,6 +187,7 @@ const TRANSLATIONS: Record<string, TranslationMap> = {
     twentyFourHour: "24 hour",
     unconfigured: "Open Settings -> Integrations -> Aurora Calendar -> Configure to add your calendars.",
     viewBiweek: "Biweek",
+    viewRolling2Weeks: "Rolling 2 Weeks",
     viewMonth: "Month",
     viewNext7Days: "Next 7 Days",
     viewToday: "Today",
@@ -782,6 +784,7 @@ const VIEW_LABEL_KEYS: Record<ViewMode, TranslationKey> = {
   Month: "viewMonth",
   Week: "viewWeek",
   Biweek: "viewBiweek",
+  "Rolling 2 Weeks": "viewRolling2Weeks",
   Today: "viewToday",
   "Next 7 Days": "viewNext7Days",
 };

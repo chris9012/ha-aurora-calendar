@@ -5,6 +5,7 @@ export const VIEW_MODES: ViewMode[] = [
   "Month",
   "Week",
   "Biweek",
+  "Rolling 2 Weeks",
   "Today",
   "Next 7 Days",
 ];
@@ -65,6 +66,14 @@ export function getDateRange(
   if (mode === "Biweek") {
     const start = startOfWeek(today, weekStart);
     start.setDate(start.getDate() + offset * 14);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 13);
+    return [start, end];
+  }
+
+  if (mode === "Rolling 2 Weeks") {
+    const start = new Date(today);
+    start.setDate(today.getDate() + offset * 14);
     const end = new Date(start);
     end.setDate(start.getDate() + 13);
     return [start, end];

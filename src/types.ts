@@ -1,4 +1,4 @@
-export type ViewMode = "Month" | "Week" | "Biweek" | "Today" | "Next 7 Days";
+export type ViewMode = "Month" | "Week" | "Biweek" | "Today" | "Next 7 Days" | "Rolling 2 Weeks";
 
 export type WeekStart = "sunday" | "monday";
 export type TimeFormat = "12h" | "24h";

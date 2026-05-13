@@ -354,10 +354,15 @@ export class AuroraCalendarTimeGrid extends LitElement {
   private _personAvatar(event: CalendarEvent) {
     const person = this.persons.find((p) => p.person === event.person);
     const color = person?.color || event.color;
-    const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
+    const t = event.title.toLowerCase();
+    const avatarContent = t.includes("birthday")
+      ? html`<ha-icon icon="mdi:cake-variant"></ha-icon>`
+      : t.includes("anniversary")
+        ? html`<ha-icon icon="mdi:glass-cheers"></ha-icon>`
+        : (person?.person || event.person || "?").charAt(0).toUpperCase();
     return html`
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${initial}
+        ${avatarContent}
         ${person?.avatar ? html`<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : nothing}
       </span>
     `;
@@ -977,7 +982,7 @@ export class AuroraCalendarTimeGrid extends LitElement {
       position: absolute;
       border-radius: var(--aurora-event-radius, 8px);
       overflow: hidden;
-      padding: var(--aurora-event-padding, 6px 36px 6px 8px);
+      padding: var(--aurora-event-padding, 8px 56px 8px 10px);
       box-sizing: border-box;
       cursor: pointer;
       transition: filter 0.12s;
@@ -1153,8 +1158,8 @@ export class AuroraCalendarTimeGrid extends LitElement {
 
     .ev-time {
       margin-top: 2px;
-      font-size: 0.82em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 700;
       opacity: 0.82;
       white-space: nowrap;
       overflow: hidden;
@@ -1163,8 +1168,8 @@ export class AuroraCalendarTimeGrid extends LitElement {
 
     .ev-location {
       margin-top: 1px;
-      font-size: 0.78em;
-      font-weight: 500;
+      font-size: 0.86em;
+      font-weight: 700;
       opacity: 0.72;
       white-space: nowrap;
       overflow: hidden;
@@ -1176,8 +1181,8 @@ export class AuroraCalendarTimeGrid extends LitElement {
       right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 26px;
-      height: 26px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1200,6 +1205,11 @@ export class AuroraCalendarTimeGrid extends LitElement {
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
+    }
+
+    .event-avatar ha-icon {
+      --mdc-icon-size: 26px;
+      color: #fff;
     }
 
     /* ── Current-time bar ── */

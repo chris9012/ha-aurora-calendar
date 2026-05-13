@@ -43,6 +43,7 @@ const VIEW_ICONS: Record<ViewMode, string> = {
   Month: "mdi:calendar-month",
   Week: "mdi:calendar-week",
   Biweek: "mdi:calendar-week-begin",
+  "Rolling 2 Weeks": "mdi:calendar-today",
   Today: "mdi:white-balance-sunny",
   "Next 7 Days": "mdi:calendar-range",
 };
@@ -582,6 +583,9 @@ export class AuroraCalendarCard extends LitElement {
       const currentStart = getDateRange("Biweek", 0, this._config.week_start)[0];
       const selectedStart = this._startOfWeek(selected);
       this._offset = Math.trunc(this._dayDiff(currentStart, selectedStart) / 14);
+    } else if (this._viewMode === "Rolling 2 Weeks") {
+      const currentStart = getDateRange("Rolling 2 Weeks", 0, this._config.week_start)[0];
+      this._offset = Math.trunc(this._dayDiff(currentStart, selected) / 14);
     }
     this._jumpMenuOpen = false;
   }
@@ -1709,6 +1713,25 @@ export class AuroraCalendarCard extends LitElement {
                       .config=${this._config}
                       .dimOtherMonths=${false}
                       .weekStart=${this._config.week_start}
+                      .weatherByDate=${weatherByDate}
+                      .weatherEntity=${this._weatherEntity}
+                      .locale=${locale}
+                      .persons=${persons}
+                      @aurora-event-open=${this._handleEventOpen}
+                    ></aurora-calendar-month>
+                  `
+                : this._viewMode === "Rolling 2 Weeks"
+                  ? html`
+                    <aurora-calendar-month
+                      .events=${this._filteredEvents}
+                      .start=${start}
+                      .end=${end}
+                      .currentMonth=${start.getMonth()}
+                      .currentYear=${start.getFullYear()}
+                      .config=${this._config}
+                      .dimOtherMonths=${false}
+                      .weekStart=${this._config.week_start}
+                      .gridStart=${start.getDay()}
                       .weatherByDate=${weatherByDate}
                       .weatherEntity=${this._weatherEntity}
                       .locale=${locale}

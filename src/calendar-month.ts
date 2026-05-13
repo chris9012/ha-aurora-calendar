@@ -66,6 +66,9 @@ export class AuroraCalendarMonth extends LitElement {
   @property({ attribute: false }) weatherEntity = "";
   @property({ attribute: false }) locale = "en";
   @property({ attribute: false }) persons: PersonInfo[] = [];
+  // When set (0–6), overrides weekStart for column headers — used by Rolling 2 Weeks
+  // so headers start from today's day of week rather than the fixed Sun/Mon anchor.
+  @property({ type: Number }) gridStart = -1;
   private _autoScrollKey = "";
 
   updated(): void {
@@ -83,7 +86,7 @@ export class AuroraCalendarMonth extends LitElement {
   render() {
     const today = localToday();
     const days = this._days();
-    const firstHeader = this.weekStart === "monday" ? 1 : 0;
+    const firstHeader = this.gridStart >= 0 ? this.gridStart : (this.weekStart === "monday" ? 1 : 0);
     const dayHeaders = Array.from({ length: 7 }, (_, i) => {
       const date = new Date(2026, 1, 1 + ((firstHeader + i) % 7));
       return formatWeekday(this.locale, date, "short");
@@ -143,12 +146,11 @@ export class AuroraCalendarMonth extends LitElement {
                   >
                   ${grouped.allDay.length ? html`
                     <div class="all-day-stack ${focusEventId ? "yields-to-focus" : ""}">
-                      <div class="all-day-label">All day</div>
-                      ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, true))}
+                      ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, true, isPast))}
                     </div>
                   ` : ""}
-                  ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false))}
-                  ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false))}
+                  ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false, isPast))}
+                  ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false, isPast))}
                   </div>
                 </div>
               </div>
@@ -159,13 +161,12 @@ export class AuroraCalendarMonth extends LitElement {
     `;
   }
 
-  private _renderEventChip(e: CalendarEvent, focusEventId: string, shouldDimOtherMonth: boolean, asAllDay: boolean) {
+  private _renderEventChip(e: CalendarEvent, focusEventId: string, shouldDimOtherMonth: boolean, asAllDay: boolean, isPast = false) {
     const concluded = eventHasConcluded(e);
-    const dim = this.config.dim_past_events && concluded;
-    const time =
-      this.config.show_event_time && !e.all_day && !asAllDay
-        ? fmtTimeRange(e, this.config.time_format, this.locale)
-        : "";
+    const dim = this.config.dim_past_events && (concluded || (e.all_day && isPast));
+    const time = this.config.show_event_time
+      ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange(e, this.config.time_format, this.locale))
+      : "";
     const textColor = contrastText(e.color);
     const avatar = this._personAvatar(e);
     return html`
@@ -376,10 +377,15 @@ export class AuroraCalendarMonth extends LitElement {
   private _personAvatar(event: CalendarEvent) {
     const person = this.persons.find((p) => p.person === event.person);
     const color = person?.color || event.color;
-    const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
+    const t = event.title.toLowerCase();
+    const avatarContent = t.includes("birthday")
+      ? html`<ha-icon icon="mdi:cake-variant"></ha-icon>`
+      : t.includes("anniversary")
+        ? html`<ha-icon icon="mdi:glass-cheers"></ha-icon>`
+        : (person?.person || event.person || "?").charAt(0).toUpperCase();
     return html`
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${initial}
+        ${avatarContent}
         ${person?.avatar ? html`<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : nothing}
       </span>
     `;
@@ -426,7 +432,7 @@ export class AuroraCalendarMonth extends LitElement {
     .col-header {
       text-align: center;
       padding: 8px 0 6px;
-      font-size: 0.7rem;
+      font-size: 0.9rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -600,8 +606,8 @@ export class AuroraCalendarMonth extends LitElement {
     .chip {
       display: block;
       position: relative;
-      min-height: 34px;
-      padding: var(--aurora-event-padding, 4px 36px 4px 6px);
+      min-height: 48px;
+      padding: var(--aurora-event-padding, 7px 56px 7px 8px);
       border-radius: var(--aurora-event-radius, 7px);
       margin-bottom: 4px;
       overflow: hidden;
@@ -616,13 +622,7 @@ export class AuroraCalendarMonth extends LitElement {
     }
 
     .chip.all-day-chip {
-      min-height: 0;
-      height: 28px;
-      padding-top: 3px;
-      padding-bottom: 3px;
       margin-bottom: 2px;
-      font-size: var(--aurora-allday-font-size, 13px);
-      line-height: 1.05;
     }
 
     .all-day-stack .chip.all-day-chip:last-child {
@@ -638,16 +638,7 @@ export class AuroraCalendarMonth extends LitElement {
       pointer-events: none;
     }
 
-    .chip.all-day-chip .chip-title {
-      font-size: 1em;
-      line-height: 1.05;
-    }
 
-    .chip.all-day-chip .event-avatar {
-      width: 22px;
-      height: 22px;
-      font-size: 0.58rem;
-    }
 
     .chip-title,
     .chip-time {
@@ -663,15 +654,15 @@ export class AuroraCalendarMonth extends LitElement {
 
     .chip-time {
       margin-top: 2px;
-      font-size: 0.82em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 700;
       opacity: 0.82;
     }
 
     .chip-location {
       margin-top: 1px;
-      font-size: 0.78em;
-      font-weight: 500;
+      font-size: 0.86em;
+      font-weight: 700;
       opacity: 0.72;
       white-space: nowrap;
       overflow: hidden;
@@ -684,11 +675,11 @@ export class AuroraCalendarMonth extends LitElement {
 
     .event-avatar {
       position: absolute;
-      right: 5px;
+      right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 26px;
-      height: 26px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -710,6 +701,11 @@ export class AuroraCalendarMonth extends LitElement {
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
+    }
+
+    .event-avatar ha-icon {
+      --mdc-icon-size: 26px;
+      color: #fff;
     }
 
     .weather-pill {

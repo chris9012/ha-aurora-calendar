@@ -215,6 +215,7 @@ const TRANSLATIONS = {
         twentyFourHour: "24 hour",
         unconfigured: "Open Settings -> Integrations -> Aurora Calendar -> Configure to add your calendars.",
         viewBiweek: "Biweek",
+        viewRolling2Weeks: "Rolling 2 Weeks",
         viewMonth: "Month",
         viewNext7Days: "Next 7 Days",
         viewToday: "Today",
@@ -810,6 +811,7 @@ const VIEW_LABEL_KEYS = {
     Month: "viewMonth",
     Week: "viewWeek",
     Biweek: "viewBiweek",
+    "Rolling 2 Weeks": "viewRolling2Weeks",
     Today: "viewToday",
     "Next 7 Days": "viewNext7Days",
 };
@@ -884,6 +886,7 @@ const VIEW_MODES = [
     "Month",
     "Week",
     "Biweek",
+    "Rolling 2 Weeks",
     "Today",
     "Next 7 Days",
 ];
@@ -931,6 +934,13 @@ function getDateRange(mode, offset, weekStart = "sunday") {
     if (mode === "Biweek") {
         const start = startOfWeek(today, weekStart);
         start.setDate(start.getDate() + offset * 14);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 13);
+        return [start, end];
+    }
+    if (mode === "Rolling 2 Weeks") {
+        const start = new Date(today);
+        start.setDate(today.getDate() + offset * 14);
         const end = new Date(start);
         end.setDate(start.getDate() + 13);
         return [start, end];
@@ -1217,6 +1227,9 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
         this.weatherEntity = "";
         this.locale = "en";
         this.persons = [];
+        // When set (0–6), overrides weekStart for column headers — used by Rolling 2 Weeks
+        // so headers start from today's day of week rather than the fixed Sun/Mon anchor.
+        this.gridStart = -1;
         this._autoScrollKey = "";
     }
     updated() {
@@ -1233,7 +1246,7 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
     render() {
         const today = localToday();
         const days = this._days();
-        const firstHeader = this.weekStart === "monday" ? 1 : 0;
+        const firstHeader = this.gridStart >= 0 ? this.gridStart : (this.weekStart === "monday" ? 1 : 0);
         const dayHeaders = Array.from({ length: 7 }, (_, i) => {
             const date = new Date(2026, 1, 1 + ((firstHeader + i) % 7));
             return formatWeekday(this.locale, date, "short");
@@ -1290,12 +1303,11 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
                   >
                   ${grouped.allDay.length ? b `
                     <div class="all-day-stack ${focusEventId ? "yields-to-focus" : ""}">
-                      <div class="all-day-label">All day</div>
-                      ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, true))}
+                      ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, true, isPast))}
                     </div>
                   ` : ""}
-                  ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false))}
-                  ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false))}
+                  ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false, isPast))}
+                  ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, shouldDimOtherMonth, false, isPast))}
                   </div>
                 </div>
               </div>
@@ -1305,11 +1317,11 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
       </div>
     `;
     }
-    _renderEventChip(e, focusEventId, shouldDimOtherMonth, asAllDay) {
+    _renderEventChip(e, focusEventId, shouldDimOtherMonth, asAllDay, isPast = false) {
         const concluded = eventHasConcluded(e);
-        const dim = this.config.dim_past_events && concluded;
-        const time = this.config.show_event_time && !e.all_day && !asAllDay
-            ? fmtTimeRange$1(e, this.config.time_format, this.locale)
+        const dim = this.config.dim_past_events && (concluded || (e.all_day && isPast));
+        const time = this.config.show_event_time
+            ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange$1(e, this.config.time_format, this.locale))
             : "";
         const textColor = contrastText(e.color);
         const avatar = this._personAvatar(e);
@@ -1504,10 +1516,15 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
     _personAvatar(event) {
         const person = this.persons.find((p) => p.person === event.person);
         const color = person?.color || event.color;
-        const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
+        const t = event.title.toLowerCase();
+        const avatarContent = t.includes("birthday")
+            ? b `<ha-icon icon="mdi:cake-variant"></ha-icon>`
+            : t.includes("anniversary")
+                ? b `<ha-icon icon="mdi:glass-cheers"></ha-icon>`
+                : (person?.person || event.person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${initial}
+        ${avatarContent}
         ${person?.avatar ? b `<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
@@ -1553,7 +1570,7 @@ AuroraCalendarMonth.styles = i$3 `
     .col-header {
       text-align: center;
       padding: 8px 0 6px;
-      font-size: 0.7rem;
+      font-size: 0.9rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -1727,8 +1744,8 @@ AuroraCalendarMonth.styles = i$3 `
     .chip {
       display: block;
       position: relative;
-      min-height: 34px;
-      padding: var(--aurora-event-padding, 4px 36px 4px 6px);
+      min-height: 48px;
+      padding: var(--aurora-event-padding, 7px 56px 7px 8px);
       border-radius: var(--aurora-event-radius, 7px);
       margin-bottom: 4px;
       overflow: hidden;
@@ -1743,13 +1760,7 @@ AuroraCalendarMonth.styles = i$3 `
     }
 
     .chip.all-day-chip {
-      min-height: 0;
-      height: 28px;
-      padding-top: 3px;
-      padding-bottom: 3px;
       margin-bottom: 2px;
-      font-size: var(--aurora-allday-font-size, 13px);
-      line-height: 1.05;
     }
 
     .all-day-stack .chip.all-day-chip:last-child {
@@ -1765,16 +1776,7 @@ AuroraCalendarMonth.styles = i$3 `
       pointer-events: none;
     }
 
-    .chip.all-day-chip .chip-title {
-      font-size: 1em;
-      line-height: 1.05;
-    }
 
-    .chip.all-day-chip .event-avatar {
-      width: 22px;
-      height: 22px;
-      font-size: 0.58rem;
-    }
 
     .chip-title,
     .chip-time {
@@ -1790,15 +1792,15 @@ AuroraCalendarMonth.styles = i$3 `
 
     .chip-time {
       margin-top: 2px;
-      font-size: 0.82em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 700;
       opacity: 0.82;
     }
 
     .chip-location {
       margin-top: 1px;
-      font-size: 0.78em;
-      font-weight: 500;
+      font-size: 0.86em;
+      font-weight: 700;
       opacity: 0.72;
       white-space: nowrap;
       overflow: hidden;
@@ -1811,11 +1813,11 @@ AuroraCalendarMonth.styles = i$3 `
 
     .event-avatar {
       position: absolute;
-      right: 5px;
+      right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 26px;
-      height: 26px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1837,6 +1839,11 @@ AuroraCalendarMonth.styles = i$3 `
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
+    }
+
+    .event-avatar ha-icon {
+      --mdc-icon-size: 26px;
+      color: #fff;
     }
 
     .weather-pill {
@@ -1930,6 +1937,9 @@ __decorate([
 __decorate([
     n({ attribute: false })
 ], AuroraCalendarMonth.prototype, "persons", void 0);
+__decorate([
+    n({ type: Number })
+], AuroraCalendarMonth.prototype, "gridStart", void 0);
 AuroraCalendarMonth = __decorate([
     t$1("aurora-calendar-month")
 ], AuroraCalendarMonth);
@@ -2041,12 +2051,11 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
                 >
                 ${grouped.allDay.length ? b `
                   <div class="all-day-stack ${focusEventId ? "yields-to-focus" : ""}">
-                    <div class="all-day-label">All day</div>
-                    ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, true))}
+                    ${grouped.allDay.map((e) => this._renderEventChip(e, focusEventId, true, isPast))}
                   </div>
                 ` : ""}
-                ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, false))}
-                ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, false))}
+                ${grouped.expiredTimed.map((e) => this._renderEventChip(e, focusEventId, false, isPast))}
+                ${grouped.activeTimed.map((e) => this._renderEventChip(e, focusEventId, false, isPast))}
                 </div>
               </div>
             </div>
@@ -2099,11 +2108,11 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
         })
             .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
     }
-    _renderEventChip(e, focusEventId, asAllDay) {
+    _renderEventChip(e, focusEventId, asAllDay, isPast = false) {
         const concluded = eventHasConcluded(e);
-        const dim = this.config.dim_past_events && concluded;
-        const time = this.config.show_event_time && !e.all_day && !asAllDay
-            ? fmtTimeRange(e, this.config.time_format, this.locale)
+        const dim = this.config.dim_past_events && (concluded || (e.all_day && isPast));
+        const time = this.config.show_event_time
+            ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange(e, this.config.time_format, this.locale))
             : "";
         const textColor = contrastText(e.color);
         const avatar = this._personAvatar(e);
@@ -2269,10 +2278,15 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
     _personAvatar(event) {
         const person = this.persons.find((p) => p.person === event.person);
         const color = person?.color || event.color;
-        const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
+        const t = event.title.toLowerCase();
+        const avatarContent = t.includes("birthday")
+            ? b `<ha-icon icon="mdi:cake-variant"></ha-icon>`
+            : t.includes("anniversary")
+                ? b `<ha-icon icon="mdi:glass-cheers"></ha-icon>`
+                : (person?.person || event.person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${initial}
+        ${avatarContent}
         ${person?.avatar ? b `<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
@@ -2345,7 +2359,7 @@ AuroraCalendarWeekBox.styles = i$3 `
     }
 
     .dow {
-      font-size: 1.05rem;
+      font-size: 1.3rem;
       font-weight: 700;
       letter-spacing: 0.01em;
       line-height: 1;
@@ -2490,8 +2504,8 @@ AuroraCalendarWeekBox.styles = i$3 `
     .chip {
       display: block;
       position: relative;
-      min-height: 40px;
-      padding: var(--aurora-event-padding, 5px 36px 5px 7px);
+      min-height: 54px;
+      padding: var(--aurora-event-padding, 8px 56px 8px 9px);
       border-radius: var(--aurora-event-radius, 8px);
       margin-bottom: 5px;
       overflow: hidden;
@@ -2506,13 +2520,7 @@ AuroraCalendarWeekBox.styles = i$3 `
     }
 
     .chip.all-day-chip {
-      min-height: 0;
-      height: 30px;
-      padding-top: 4px;
-      padding-bottom: 4px;
       margin-bottom: 2px;
-      font-size: var(--aurora-allday-font-size, 13px);
-      line-height: 1.05;
     }
 
     .all-day-stack .chip.all-day-chip:last-child {
@@ -2528,16 +2536,7 @@ AuroraCalendarWeekBox.styles = i$3 `
       pointer-events: none;
     }
 
-    .chip.all-day-chip .chip-title {
-      font-size: 1em;
-      line-height: 1.05;
-    }
 
-    .chip.all-day-chip .event-avatar {
-      width: 22px;
-      height: 22px;
-      font-size: 0.58rem;
-    }
 
     .chip-title,
     .chip-time {
@@ -2553,15 +2552,15 @@ AuroraCalendarWeekBox.styles = i$3 `
 
     .chip-time {
       margin-top: 2px;
-      font-size: 0.82em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 700;
       opacity: 0.82;
     }
 
     .chip-location {
       margin-top: 1px;
-      font-size: 0.78em;
-      font-weight: 500;
+      font-size: 0.86em;
+      font-weight: 700;
       opacity: 0.72;
       white-space: nowrap;
       overflow: hidden;
@@ -2577,8 +2576,8 @@ AuroraCalendarWeekBox.styles = i$3 `
       right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 26px;
-      height: 26px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2600,6 +2599,11 @@ AuroraCalendarWeekBox.styles = i$3 `
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
+    }
+
+    .event-avatar ha-icon {
+      --mdc-icon-size: 26px;
+      color: #fff;
     }
 
     .empty-action {
@@ -3071,10 +3075,15 @@ let AuroraCalendarTimeGrid = class AuroraCalendarTimeGrid extends i {
     _personAvatar(event) {
         const person = this.persons.find((p) => p.person === event.person);
         const color = person?.color || event.color;
-        const initial = (person?.person || event.person || "?").charAt(0).toUpperCase();
+        const t = event.title.toLowerCase();
+        const avatarContent = t.includes("birthday")
+            ? b `<ha-icon icon="mdi:cake-variant"></ha-icon>`
+            : t.includes("anniversary")
+                ? b `<ha-icon icon="mdi:glass-cheers"></ha-icon>`
+                : (person?.person || event.person || "?").charAt(0).toUpperCase();
         return b `
       <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${initial}
+        ${avatarContent}
         ${person?.avatar ? b `<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : A}
       </span>
     `;
@@ -3596,7 +3605,7 @@ AuroraCalendarTimeGrid.styles = i$3 `
       position: absolute;
       border-radius: var(--aurora-event-radius, 8px);
       overflow: hidden;
-      padding: var(--aurora-event-padding, 6px 36px 6px 8px);
+      padding: var(--aurora-event-padding, 8px 56px 8px 10px);
       box-sizing: border-box;
       cursor: pointer;
       transition: filter 0.12s;
@@ -3772,8 +3781,8 @@ AuroraCalendarTimeGrid.styles = i$3 `
 
     .ev-time {
       margin-top: 2px;
-      font-size: 0.82em;
-      font-weight: 500;
+      font-size: 0.92em;
+      font-weight: 700;
       opacity: 0.82;
       white-space: nowrap;
       overflow: hidden;
@@ -3782,8 +3791,8 @@ AuroraCalendarTimeGrid.styles = i$3 `
 
     .ev-location {
       margin-top: 1px;
-      font-size: 0.78em;
-      font-weight: 500;
+      font-size: 0.86em;
+      font-weight: 700;
       opacity: 0.72;
       white-space: nowrap;
       overflow: hidden;
@@ -3795,8 +3804,8 @@ AuroraCalendarTimeGrid.styles = i$3 `
       right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 26px;
-      height: 26px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -3819,6 +3828,11 @@ AuroraCalendarTimeGrid.styles = i$3 `
       height: 100%;
       object-fit: cover;
       border-radius: inherit;
+    }
+
+    .event-avatar ha-icon {
+      --mdc-icon-size: 26px;
+      color: #fff;
     }
 
     /* ── Current-time bar ── */
@@ -3883,6 +3897,7 @@ const VIEW_ICONS = {
     Month: "mdi:calendar-month",
     Week: "mdi:calendar-week",
     Biweek: "mdi:calendar-week-begin",
+    "Rolling 2 Weeks": "mdi:calendar-today",
     Today: "mdi:white-balance-sunny",
     "Next 7 Days": "mdi:calendar-range",
 };
@@ -4353,6 +4368,10 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
             const currentStart = getDateRange("Biweek", 0, this._config.week_start)[0];
             const selectedStart = this._startOfWeek(selected);
             this._offset = Math.trunc(this._dayDiff(currentStart, selectedStart) / 14);
+        }
+        else if (this._viewMode === "Rolling 2 Weeks") {
+            const currentStart = getDateRange("Rolling 2 Weeks", 0, this._config.week_start)[0];
+            this._offset = Math.trunc(this._dayDiff(currentStart, selected) / 14);
         }
         this._jumpMenuOpen = false;
     }
@@ -5447,8 +5466,27 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                       @aurora-event-open=${this._handleEventOpen}
                     ></aurora-calendar-month>
                   `
-                    : this._viewMode === "Week"
+                    : this._viewMode === "Rolling 2 Weeks"
                         ? b `
+                    <aurora-calendar-month
+                      .events=${this._filteredEvents}
+                      .start=${start}
+                      .end=${end}
+                      .currentMonth=${start.getMonth()}
+                      .currentYear=${start.getFullYear()}
+                      .config=${this._config}
+                      .dimOtherMonths=${false}
+                      .weekStart=${this._config.week_start}
+                      .gridStart=${start.getDay()}
+                      .weatherByDate=${weatherByDate}
+                      .weatherEntity=${this._weatherEntity}
+                      .locale=${locale}
+                      .persons=${persons}
+                      @aurora-event-open=${this._handleEventOpen}
+                    ></aurora-calendar-month>
+                  `
+                        : this._viewMode === "Week"
+                            ? b `
                     <aurora-calendar-week-box
                       .events=${this._filteredEvents}
                       .days=${days}
@@ -5461,7 +5499,7 @@ let AuroraCalendarCard = class AuroraCalendarCard extends i {
                       @aurora-event-open=${this._handleEventOpen}
                     ></aurora-calendar-week-box>
                   `
-                        : b `
+                            : b `
                     <aurora-calendar-time-grid
                       .events=${this._timeGridEvents}
                       .days=${days}

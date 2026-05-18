@@ -6,6 +6,7 @@ interface HassWeatherForecast {
   condition?: string;
   temperature?: number;
   templow?: number;
+  precipitation_probability?: number;
 }
 
 interface WeatherForecastResponse {
@@ -52,6 +53,7 @@ function normalizeForecast(
     temperature: forecast.temperature,
     templow: forecast.templow,
     temperatureUnit,
+    precipitation_probability: forecast.precipitation_probability,
   };
 }
 

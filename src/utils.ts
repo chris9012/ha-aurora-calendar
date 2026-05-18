@@ -111,7 +111,7 @@ export function getViewTitle(
     return formatTodayTitle(locale, start);
   }
 
-  return formatRangeTitle(locale, start, end);
+  return `${formatRangeTitle(locale, start, end)}, ${end.getFullYear()}`;
 }
 
 // ------------------------------------------------------------------

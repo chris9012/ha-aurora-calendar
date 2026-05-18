@@ -2350,7 +2350,7 @@ export class AuroraCalendarCard extends LitElement {
 
     .view-title {
       grid-area: title;
-      font-size: 1.42rem;
+      font-size: 2rem;
       font-weight: 800;
       color: var(--primary-text-color);
       justify-self: center;

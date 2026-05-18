@@ -131,9 +131,11 @@ export class AuroraCalendarMonth extends LitElement {
                       @click=${this._openWeatherMoreInfo}
                     >
                       <span class="weather-temps">
-                        <span>${t(this.locale, "hi")}: ${temps?.high || "--"}</span>
-                        <span>${t(this.locale, "lo")}: ${temps?.low || "--"}</span>
+                        <span>${temps?.high || "--"} / ${temps?.low || "--"}</span>
                       </span>
+                      ${weather.precipitation_probability != null && weather.precipitation_probability > 0
+                        ? html`<span class="weather-rain">💧 ${Math.round(weather.precipitation_probability)}%</span>`
+                        : ""}
                       <img src=${weatherSvgUrl(weather.condition, this.config.weather_icon_style)} alt="${weather.condition}" />
                     </button>
                   ` : ""}
@@ -733,6 +735,14 @@ export class AuroraCalendarMonth extends LitElement {
       cursor: pointer;
     }
 
+    .weather-rain {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #60a5fa;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .weather-pill img {
       width: 38px;
       height: 38px;
@@ -743,10 +753,8 @@ export class AuroraCalendarMonth extends LitElement {
     .weather-temps {
       height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 1px;
-      font-size: 0.68rem;
+      align-items: center;
+      font-size: 1.05rem;
       font-weight: 700;
       line-height: 1;
       text-align: right;

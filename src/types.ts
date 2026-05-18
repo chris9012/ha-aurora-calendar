@@ -135,6 +135,7 @@ export interface WeatherDay {
   temperature?: number;
   templow?: number;
   temperatureUnit: string;
+  precipitation_probability?: number;
 }
 
 export type WeatherByDate = Record<string, WeatherDay>;

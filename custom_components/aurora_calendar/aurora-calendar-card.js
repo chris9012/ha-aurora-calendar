@@ -972,7 +972,7 @@ function getViewTitle(mode, offset, start, end, locale = "en") {
     if (mode === "Today") {
         return formatTodayTitle(locale, start);
     }
-    return formatRangeTitle(locale, start, end);
+    return `${formatRangeTitle(locale, start, end)}, ${end.getFullYear()}`;
 }
 function loadPersistedView(key) {
     try {
@@ -1082,6 +1082,7 @@ function normalizeForecast(forecast, temperatureUnit) {
         temperature: forecast.temperature,
         templow: forecast.templow,
         temperatureUnit,
+        precipitation_probability: forecast.precipitation_probability,
     };
 }
 function weatherSvgUrl(condition, style = "static") {
@@ -1293,9 +1294,11 @@ let AuroraCalendarMonth = class AuroraCalendarMonth extends i {
                       @click=${this._openWeatherMoreInfo}
                     >
                       <span class="weather-temps">
-                        <span>${t(this.locale, "hi")}: ${temps?.high || "--"}</span>
-                        <span>${t(this.locale, "lo")}: ${temps?.low || "--"}</span>
+                        <span>${temps?.high || "--"} / ${temps?.low || "--"}</span>
                       </span>
+                      ${weather.precipitation_probability != null && weather.precipitation_probability > 0
+                ? b `<span class="weather-rain">💧 ${Math.round(weather.precipitation_probability)}%</span>`
+                : ""}
                       <img src=${weatherSvgUrl(weather.condition, this.config.weather_icon_style)} alt="${weather.condition}" />
                     </button>
                   ` : ""}
@@ -1877,6 +1880,14 @@ AuroraCalendarMonth.styles = i$3 `
       cursor: pointer;
     }
 
+    .weather-rain {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #60a5fa;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .weather-pill img {
       width: 38px;
       height: 38px;
@@ -1887,10 +1898,8 @@ AuroraCalendarMonth.styles = i$3 `
     .weather-temps {
       height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 1px;
-      font-size: 0.68rem;
+      align-items: center;
+      font-size: 1.05rem;
       font-weight: 700;
       line-height: 1;
       text-align: right;
@@ -2048,9 +2057,11 @@ let AuroraCalendarWeekBox = class AuroraCalendarWeekBox extends i {
                     @click=${this._openWeatherMoreInfo}
                   >
                     <span class="weather-temps">
-                      <span>${t(this.locale, "hi")}: ${temps?.high || "--"}</span>
-                      <span>${t(this.locale, "lo")}: ${temps?.low || "--"}</span>
+                      <span>${temps?.high || "--"} / ${temps?.low || "--"}</span>
                     </span>
+                    ${weather.precipitation_probability != null && weather.precipitation_probability > 0
+                ? b `<span class="weather-rain">💧 ${Math.round(weather.precipitation_probability)}%</span>`
+                : ""}
                     <img src=${weatherSvgUrl(weather.condition, this.config.weather_icon_style)} alt="${weather.condition}" />
                   </button>
                 ` : ""}
@@ -2679,6 +2690,14 @@ AuroraCalendarWeekBox.styles = i$3 `
       cursor: pointer;
     }
 
+    .weather-rain {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #60a5fa;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .weather-pill img {
       width: 52px;
       height: 52px;
@@ -2689,10 +2708,8 @@ AuroraCalendarWeekBox.styles = i$3 `
     .weather-temps {
       height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 2px;
-      font-size: 0.78rem;
+      align-items: center;
+      font-size: 1.1rem;
       font-weight: 700;
       line-height: 1;
       text-align: right;
@@ -6118,7 +6135,7 @@ AuroraCalendarCard.styles = i$3 `
 
     .view-title {
       grid-area: title;
-      font-size: 1.42rem;
+      font-size: 2rem;
       font-weight: 800;
       color: var(--primary-text-color);
       justify-self: center;

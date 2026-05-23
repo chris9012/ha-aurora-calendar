@@ -72,11 +72,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def _register_card_resources(hass: HomeAssistant) -> None:
     """Serve the bundled card and weather icons, and auto-load the card JS."""
+    integration_dir = Path(__file__).parent
+
+    # Always ensure event-icons directory exists with correct permissions,
+    # even on reload — Samba can't create directories remotely so HA owns this.
+    await hass.async_add_executor_job(
+        lambda: (integration_dir / "event-icons").mkdir(exist_ok=True)
+    )
+
     if hass.data.get(_RESOURCES_REGISTERED_KEY):
         return
     hass.data[_RESOURCES_REGISTERED_KEY] = True
 
-    integration_dir = Path(__file__).parent
     await hass.http.async_register_static_paths(
         [StaticPathConfig(_STATIC_URL_PATH, str(integration_dir), True)]
     )

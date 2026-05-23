@@ -58,6 +58,7 @@ class AuroraCalendarConfigSensor(CoordinatorEntity, SensorEntity):
             "persons": data.get("persons", []),
             "filters": data.get("filters", {}),
             "weather_entity": data.get("weather_entity", ""),
+            "occasions_entity_id": data.get("occasions_entity_id", ""),
         }
 
     @property

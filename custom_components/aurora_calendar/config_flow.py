@@ -43,16 +43,18 @@ class _CalendarFlowMixin:
     """Shared 'pick calendars' + 'per-calendar details' steps.
 
     Subclasses must define:
-      - self._existing       : dict[entity_id -> calendar config] (may be {})
-      - self._selected_entities : list[str]
-      - self._weather_entity : str
-      - self._async_finalize(calendars, weather_entity) -> awaitable
+      - self._existing            : dict[entity_id -> calendar config] (may be {})
+      - self._selected_entities   : list[str]
+      - self._weather_entity      : str
+      - self._occasions_entity_id : str
+      - self._async_finalize(calendars, weather_entity, occasions_entity_id) -> awaitable
     """
 
     # Type stubs to satisfy linters; real attributes live on subclasses.
     _existing: dict[str, dict]
     _selected_entities: list[str]
     _weather_entity: str
+    _occasions_entity_id: str
     hass: Any
 
     async def async_step_calendars(
@@ -66,11 +68,16 @@ class _CalendarFlowMixin:
             else:
                 self._selected_entities = selected
                 self._weather_entity = user_input.get("weather_entity") or ""
+                self._occasions_entity_id = user_input.get("occasions_calendar") or ""
                 return await self.async_step_details()
 
         weather_kwargs: dict[str, Any] = {}
         if self._weather_entity:
             weather_kwargs["description"] = {"suggested_value": self._weather_entity}
+
+        occasions_kwargs: dict[str, Any] = {}
+        if self._occasions_entity_id:
+            occasions_kwargs["description"] = {"suggested_value": self._occasions_entity_id}
 
         calendars_kwargs: dict[str, Any] = {}
         if self._existing:
@@ -85,6 +92,9 @@ class _CalendarFlowMixin:
                 ),
                 vol.Optional("weather_entity", **weather_kwargs): EntitySelector(
                     EntitySelectorConfig(domain="weather", multiple=False)
+                ),
+                vol.Optional("occasions_calendar", **occasions_kwargs): EntitySelector(
+                    EntitySelectorConfig(domain="calendar", multiple=False)
                 ),
             }
         )
@@ -138,7 +148,7 @@ class _CalendarFlowMixin:
                         "avatar": existing.get("avatar", ""),
                     }
                 )
-            return await self._async_finalize(calendars, self._weather_entity)
+            return await self._async_finalize(calendars, self._weather_entity, self._occasions_entity_id)
 
         fields: dict[Any, Any] = {}
         for idx, entity_id in enumerate(self._selected_entities):
@@ -205,7 +215,7 @@ class _CalendarFlowMixin:
         )
 
     async def _async_finalize(
-        self, calendars: list[dict], weather_entity: str
+        self, calendars: list[dict], weather_entity: str, occasions_entity_id: str
     ) -> dict:
         raise NotImplementedError
 
@@ -220,6 +230,7 @@ class AuroraCalendarConfigFlow(_CalendarFlowMixin, ConfigFlow, domain=DOMAIN):
         self._existing: dict[str, dict] = {}
         self._selected_entities: list[str] = []
         self._weather_entity: str = ""
+        self._occasions_entity_id: str = ""
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -230,12 +241,16 @@ class AuroraCalendarConfigFlow(_CalendarFlowMixin, ConfigFlow, domain=DOMAIN):
         return await self.async_step_calendars()
 
     async def _async_finalize(
-        self, calendars: list[dict], weather_entity: str
+        self, calendars: list[dict], weather_entity: str, occasions_entity_id: str
     ) -> dict:
         return self.async_create_entry(
             title=self._name,
             data={"name": self._name},
-            options={"calendars": calendars, "weather_entity": weather_entity},
+            options={
+                "calendars": calendars,
+                "weather_entity": weather_entity,
+                "occasions_entity_id": occasions_entity_id,
+            },
         )
 
     @staticmethod
@@ -255,16 +270,21 @@ class AuroraCalendarOptionsFlow(_CalendarFlowMixin, OptionsFlow):
         }
         self._selected_entities = []
         self._weather_entity = config_entry.options.get("weather_entity", "")
+        self._occasions_entity_id = config_entry.options.get("occasions_entity_id", "")
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> dict:
         return await self.async_step_calendars(user_input)
 
     async def _async_finalize(
-        self, calendars: list[dict], weather_entity: str
+        self, calendars: list[dict], weather_entity: str, occasions_entity_id: str
     ) -> dict:
         return self.async_create_entry(
             title="",
-            data={"calendars": calendars, "weather_entity": weather_entity},
+            data={
+                "calendars": calendars,
+                "weather_entity": weather_entity,
+                "occasions_entity_id": occasions_entity_id,
+            },
         )
 
 

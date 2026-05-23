@@ -14,7 +14,11 @@
         "description": "Choose the calendar entities you want to display, plus an optional weather entity for the forecast overlay.",
         "data": {
           "calendar_entities": "Calendar entities",
-          "weather_entity": "Weather entity (optional)"
+          "weather_entity": "Weather entity (optional)",
+          "occasions_calendar": "Occasions calendar (optional)"
+        },
+        "data_description": {
+          "occasions_calendar": "Events from this calendar get special icons for birthdays and anniversaries."
         }
       },
       "details": {
@@ -308,7 +312,11 @@
         "description": "Select which calendar entities to include.",
         "data": {
           "calendar_entities": "Calendar entities",
-          "weather_entity": "Weather entity (optional)"
+          "weather_entity": "Weather entity (optional)",
+          "occasions_calendar": "Occasions calendar (optional)"
+        },
+        "data_description": {
+          "occasions_calendar": "Events from this calendar get special icons for birthdays and anniversaries."
         }
       },
       "details": {

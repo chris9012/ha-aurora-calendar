@@ -89,6 +89,10 @@ class AuroraCalendarCoordinator(DataUpdateCoordinator):
         return self.entry.options.get("weather_entity", "")
 
     @property
+    def occasions_entity_id(self) -> str:
+        return self.entry.options.get("occasions_entity_id", "")
+
+    @property
     def persons(self) -> list[dict]:
         """Deduplicated list of persons derived from the calendars config."""
         seen: dict[str, dict] = {}
@@ -163,6 +167,7 @@ class AuroraCalendarCoordinator(DataUpdateCoordinator):
             "persons": self.persons,
             "filters": {p["person"]: self.is_filter_enabled(p["person"]) for p in self.persons},
             "weather_entity": self.weather_entity,
+            "occasions_entity_id": self.occasions_entity_id,
         }
 
     async def _async_update_data(self) -> dict[str, Any]:

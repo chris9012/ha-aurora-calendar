@@ -6,7 +6,11 @@
     "build": "rollup -c",
     "dev": "rollup -c --watch",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync": "git fetch upstream && git rebase upstream/main && npm run build",
+    "push": "git push origin main",
+    "update": "npm run sync && npm run push",
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1"
   },
   "dependencies": {
     "lit": "^3.0.0",

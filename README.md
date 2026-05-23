@@ -1,59 +1,66 @@
-# Aurora Calendar
+# Aurora Calendar — Personal Fork
 
 ![Aurora Calendar](https://raw.githubusercontent.com/davidlop28/ha-aurora-calendar/main/assets/banner.png)
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-davidlop28-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/davidlop28)
-
-A feature-rich family calendar for Home Assistant — bundled as a single integration that ships its own Lovelace card. Displays Month, Week, Biweek, Today, and Next 7 Days views with per-person color coding, weather integration, background customization, and a built-in visual editor.
-
----
-
-## Features
-
-- **Multiple views** — Month, Week, Biweek, Today, Next 7 Days
-- **Per-person calendar colors** — automatically derived from your calendar entities or manually overridden
-- **Weather overlay** — daily forecast icons and temperatures in the Month view
-- **Background customization** — static image, HA media, or glass effect
-- **Visual editor** — configure everything from the Lovelace UI without editing YAML
-- **Time grid** — configurable visible hour range in week views
-- **Localization** — adapts to your HA locale (10 languages bundled)
+> **This is a personal fork of [davidlop28/ha-aurora-calendar](https://github.com/davidlop28/ha-aurora-calendar)**
+> with custom features added for family calendar management.
+> The upstream project is actively maintained — this fork tracks it via `git rebase`.
 
 ---
 
-## Requirements
+## Custom Features (this fork)
 
-- Home Assistant **2026.3** or later (uses the Brands Proxy API for the integration icon)
-- One or more calendar entities already configured in HA (Google Calendar, Local Calendar, CalDAV, etc.)
+### Shared Event Deduplication
+When the same event appears on multiple family calendars (e.g. a child's event that parents are invited to), the card automatically deduplicates it into a single chip. The originating calendar's color is preserved, and all attendees' avatars are shown stacked on the chip.
 
----
+Uses the Google Calendar `is_self` attendee flag to identify the home calendar — the copy where no attendee has `is_self=true` is the originator.
 
-## Installation
+### Stacked Attendee Avatars
+Events shared across multiple calendars show overlapping circular avatars for each person involved, instead of a single avatar.
 
-### Via HACS (recommended)
+### Occasions Calendar with Animated Icons
+Designate a specific calendar as your "occasions" calendar during integration setup. Events on that calendar get animated Google Noto emoji icons:
+- Events containing **"birthday"** → animated 🎂 birthday cake
+- Events containing **"anniversary"** → animated 🥂 clinking glasses
 
-[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=davidlop28&repository=ha-aurora-calendar&category=integration)
+Animated icons are powered by bundled Lottie animations from [Google Noto Emoji Animations](https://googlefonts.github.io/noto-emoji-animation/), served locally — no external dependencies.
 
-1. Click the badge above (or open **HACS** → **Integrations** → **Explore & Download Repositories** and search **Aurora Calendar**)
-2. Download the integration
-3. Restart Home Assistant
-4. Go to **Settings → Devices & Services → Add Integration**, search **Aurora Calendar**, and follow the setup flow
+### Weather Enhancements
+- Precipitation probability shown as 💧 % on weather pills
+- Temperature display reformatted to `high / low` inline
 
-The card is bundled with the integration and registers itself automatically — no separate Lovelace resource setup is required.
-
-### Manual
-
-1. Download the latest release zip
-2. Copy `custom_components/aurora_calendar/` into your HA `config/custom_components/` folder
-3. Restart Home Assistant
-4. Add the integration via **Settings → Devices & Services**
+### Rolling 2 Weeks View
+Additional view mode showing a rolling two-week window starting from today.
 
 ---
 
-## Configuration
+## Installation via HACS
 
-Add the card to any dashboard. The easiest way is to use the built-in **visual editor** — click **Add Card**, search for **Aurora Calendar**, and configure it from there.
+1. In HA go to **HACS → Integrations** → three dots (top right) → **Custom repositories**
+2. Add `https://github.com/chris9012/ha-aurora-calendar` as type **Integration**
+3. Find **Aurora Calendar** in HACS and install it
+4. Restart Home Assistant
+5. Go to **Settings → Devices & Services → Add Integration**, search **Aurora Calendar**
 
-### Minimal YAML
+---
+
+## Integration Setup
+
+During setup you will configure:
+
+| Field | Description |
+|---|---|
+| **Calendar entities** | The HA calendar entities to display |
+| **Weather entity** | Optional — for the forecast overlay |
+| **Occasions calendar** | Optional — events here get special animated icons |
+
+Then for each calendar you can set a display name, color, and linked HA person entity for avatar photos.
+
+---
+
+## Card Configuration
+
+Add the card to any dashboard and use the visual editor, or use YAML:
 
 ```yaml
 type: custom:aurora-calendar-card
@@ -64,14 +71,14 @@ integration: aurora_calendar
 
 ```yaml
 type: custom:aurora-calendar-card
-integration: aurora_calendar        # Required — your integration ID
+integration: aurora_calendar
 
 # General
 week_start: sunday                  # sunday | monday
 
 # Layout
 height_mode: auto                   # auto | ha | fixed | natural
-fixed_height: "640px"               # Only used when height_mode is "fixed"
+fixed_height: "640px"
 
 # Event display
 dim_past_events: true
@@ -79,21 +86,21 @@ show_event_time: true
 time_format: 12h                    # 12h | 24h
 keep_all_day_events_visible: false
 show_calendar_grid_lines: true
-event_font_size: 14                 # px
-event_font_family: inherit          # Any CSS font family
+event_font_size: 14
+event_font_family: inherit
 
-# Time grid (week / biweek / today views)
-visible_start_hour: 6               # 0–23
-visible_end_hour: 22                # 0–23
+# Time grid (week/biweek/today views)
+visible_start_hour: 6
+visible_end_hour: 22
 
 # Background
 glass_background: false
-card_opacity: 100                   # 0–100
-background_image: ""                # URL to a static image
-background_image_opacity: 35        # 0–100
-background_blur: 0                  # 0–20 px
-background_media:                   # Stream from HA media (optional)
-  media_content_id: media-source://media_source/local/my-photo.jpg
+card_opacity: 100
+background_image: ""
+background_image_opacity: 35
+background_blur: 0
+background_media:
+  media_content_id: media-source://media_source/local/photo.jpg
   media_content_type: image/jpeg
 
 # Weather
@@ -101,82 +108,107 @@ show_weather: true
 weather_icon_style: static          # static | animated
 ```
 
-### Configuration options
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `integration` | string | **required** | Your Aurora Calendar integration ID |
-| `week_start` | `sunday` \| `monday` | `sunday` | First day of the week |
-| `height_mode` | `auto` \| `ha` \| `fixed` \| `natural` | `auto` | How card height is determined |
-| `fixed_height` | string | `640px` | Card height when `height_mode` is `fixed` |
-| `dim_past_events` | boolean | `true` | Visually dim events that have already passed |
-| `show_event_time` | boolean | `true` | Show start time on event chips |
-| `time_format` | `12h` \| `24h` | `12h` | Clock format for event times |
-| `keep_all_day_events_visible` | boolean | `false` | Always show all-day events even when scrolled |
-| `show_calendar_grid_lines` | boolean | `true` | Show hour lines in week/day views |
-| `event_font_size` | number | `14` | Event chip font size in px |
-| `event_font_family` | string | `inherit` | Event chip font family |
-| `visible_start_hour` | number | `6` | First visible hour in time-grid views (0–23) |
-| `visible_end_hour` | number | `22` | Last visible hour in time-grid views (0–23) |
-| `glass_background` | boolean | `false` | Enable frosted-glass card background |
-| `card_opacity` | number | `100` | Overall card opacity (0–100) |
-| `background_image` | string | `""` | URL for a static background image |
-| `background_image_opacity` | number | `35` | Background image opacity (0–100) |
-| `background_blur` | number | `0` | Background image blur in px (0–20) |
-| `background_media` | object | `null` | HA media source for background image |
-| `show_weather` | boolean | `true` | Show weather forecast in Month view |
-| `weather_icon_style` | `static` \| `animated` | `static` | Weather icon style |
-
 ---
 
-## Development
+## Development Workflow
+
+### Prerequisites
+
+- Node.js + npm
+- Git
+- Access to the HA instance via `\\homeassistant\config` (Samba)
+
+### Setup
 
 ```bash
-# Install dependencies
+git clone https://github.com/chris9012/ha-aurora-calendar
+cd ha-aurora-calendar
 npm install
-
-# Build once
-npm run build
-
-# Watch for changes
-npm run dev
 ```
 
-The compiled output goes to `custom_components/aurora_calendar/aurora-calendar-card.js` and is auto-served by the integration when installed.
+### Available commands
 
-### Tests
+| Command | What it does |
+|---|---|
+| `npm run build` | Compile TypeScript → `aurora-calendar-card.js` and auto-deploy JS to HA |
+| `npm run dev` | Watch mode — rebuilds on every file change |
+| `npm run sync` | Fetch upstream changes, rebase, rebuild JS |
+| `npm run push` | Push current branch to this fork |
+| `npm run update` | `sync` + `push` in one step |
+| `npm run deploy` | Copy Python files and event-icons to HA via Samba |
+| `npm test` | Run frontend tests |
 
-Two suites, both fast:
+### When upstream releases an update
 
 ```bash
-# Frontend (TypeScript helpers — Vitest)
-npm test
-
-# Backend (Python integration — pytest, requires Python 3.12+)
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements_test.txt
-pytest tests/backend/
+npm run update
 ```
 
-What's covered:
+Then open HACS → Aurora Calendar → Update.
 
-- **Frontend** — date/time helpers, draft validation (`draftError`), draft normalization (auto-fix end date), HH:MM arithmetic
-- **Backend** — config flow + options flow validation, single-instance abort, entity-ID migration (drifted slugs auto-rename), coordinator persons deduplication
+### When you change TypeScript/frontend files
 
-Run before opening a PR.
+```bash
+npm run build   # JS is auto-deployed to HA via Samba
+# Hard-refresh browser (Ctrl+Shift+R)
+```
+
+### When you change Python files
+
+```bash
+npm run deploy  # Copies *.py to HA via Samba
+# Reload the integration: Settings → Devices & Services → Aurora Calendar → Reload
+```
+
+### When you change both
+
+```bash
+npm run build && npm run deploy
+# Reload integration + hard-refresh browser
+```
+
+### Keeping the fork in sync (git remotes)
+
+```
+origin   → https://github.com/chris9012/ha-aurora-calendar  (your fork)
+upstream → https://github.com/davidlop28/ha-aurora-calendar (original)
+```
+
+`npm run sync` runs `git fetch upstream && git rebase upstream/main && npm run build` automatically.
 
 ---
 
-## Support
+## Project Structure
 
-If Aurora Calendar makes your home a little brighter, you can support its development:
+```
+custom_components/aurora_calendar/
+├── __init__.py          # Integration setup, Lovelace resource registration
+├── calendar_api.py      # Custom WebSocket command for enriched event fetching
+├── config_flow.py       # Setup/reconfigure UI
+├── coordinator.py       # Shared state (calendars, colors, filters)
+├── sensor.py            # Exposes config to the card via entity attributes
+├── event-icons/         # Bundled Lottie animation files
+│   ├── birthday-cake.json
+│   └── clinking-glasses.json
+└── aurora-calendar-card.js  # Compiled card (built by rollup)
 
-<a href="https://buymeacoffee.com/davidlop28" target="_blank">
-  <img src="https://raw.githubusercontent.com/davidlop28/ha-aurora-calendar/main/assets/bmc-qr.png" alt="Buy Me A Coffee" width="180">
-</a>
+src/                     # TypeScript source
+├── aurora-calendar-card.ts  # Main card component
+├── aurora-lottie.ts         # Lottie player custom element
+├── calendar-month.ts        # Month/biweek/rolling view
+├── calendar-week-box.ts     # Week/next-7 view
+├── event-utils.ts           # Event fetching, deduplication
+└── types.ts                 # Shared TypeScript types
+```
 
-[buymeacoffee.com/davidlop28](https://buymeacoffee.com/davidlop28)
+---
+
+## Original Project
+
+All credit for the base Aurora Calendar goes to [@davidlop28](https://github.com/davidlop28/ha-aurora-calendar).
+If you find Aurora Calendar useful, consider supporting the original author:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-davidlop28-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/davidlop28)
 
 ---
 

@@ -66,6 +66,7 @@ export class AuroraCalendarMonth extends LitElement {
   @property({ attribute: false }) weatherEntity = "";
   @property({ attribute: false }) locale = "en";
   @property({ attribute: false }) persons: PersonInfo[] = [];
+  @property({ attribute: false }) occasionsEntityId = "";
   // When set (0–6), overrides weekStart for column headers — used by Rolling 2 Weeks
   // so headers start from today's day of week rather than the fixed Sun/Mon anchor.
   @property({ type: Number }) gridStart = -1;
@@ -170,19 +171,21 @@ export class AuroraCalendarMonth extends LitElement {
       ? (e.all_day || asAllDay ? t(this.locale, "allDayLabel") : fmtTimeRange(e, this.config.time_format, this.locale))
       : "";
     const textColor = this._eventTextColor(e.color);
-    const avatar = this._personAvatar(e);
+    const avatars = this._personAvatars(e);
+    const numAvatars = e.attendees && e.attendees.length > 1 ? Math.min(e.attendees.length, 3) : 1;
+    const rightPad = numAvatars > 1 ? `padding-right:${56 + (numAvatars - 1) * 18}px;` : "";
     return html`
       <div
         class="chip aurora-event-chip ${e.all_day ? "all-day-chip" : ""} ${dim || shouldDimOtherMonth ? "dim" : ""}"
         data-focus-event=${e.id === focusEventId ? "true" : "false"}
         data-event-concluded=${concluded ? "true" : "false"}
         @click=${() => this._openEvent(e)}
-        style="--aurora-chip-bg:${e.color};--aurora-chip-border-color:${shadeColor(e.color, -32)};--aurora-chip-fg:${textColor};"
+        style="--aurora-chip-bg:${e.color};--aurora-chip-border-color:${shadeColor(e.color, -32)};--aurora-chip-fg:${textColor};${rightPad}"
       >
         <div class="chip-title">${e.title}</div>
         ${time ? html`<div class="chip-time">${time}</div>` : ""}
         ${this.config.show_location && !e.all_day && e.location ? html`<div class="chip-location">${e.location}</div>` : ""}
-        ${avatar}
+        ${avatars}
       </div>
     `;
   }
@@ -382,21 +385,59 @@ export class AuroraCalendarMonth extends LitElement {
     return contrastText(bgColor);
   }
 
-  private _personAvatar(event: CalendarEvent) {
-    const person = this.persons.find((p) => p.person === event.person);
-    const color = person?.color || event.color;
-    const t = event.title.toLowerCase();
-    const avatarContent = t.includes("birthday")
-      ? html`<ha-icon icon="mdi:cake-variant"></ha-icon>`
-      : t.includes("anniversary")
-        ? html`<ha-icon icon="mdi:glass-cheers"></ha-icon>`
-        : (person?.person || event.person || "?").charAt(0).toUpperCase();
-    return html`
-      <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
-        ${avatarContent}
-        ${person?.avatar ? html`<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : nothing}
-      </span>
-    `;
+  private _personAvatars(event: CalendarEvent) {
+    const attendees = event.attendees && event.attendees.length > 1
+      ? event.attendees.slice(0, 3)
+      : null;
+
+    if (!attendees) {
+      const person = this.persons.find((p) => p.person === event.person);
+      const color = person?.color || event.color;
+      const t = event.title.toLowerCase();
+      const isOccasions = !!this.occasionsEntityId && event.calendarEntity === this.occasionsEntityId;
+      if (isOccasions && t.includes("birthday")) {
+        return html`
+          <span class="event-avatar lottie-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
+            <aurora-lottie
+              src="/aurora_calendar_static/event-icons/birthday-cake.json"
+            ></aurora-lottie>
+          </span>
+        `;
+      }
+      if (isOccasions && t.includes("anniversary")) {
+        return html`
+          <span class="event-avatar lottie-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
+            <aurora-lottie src="/aurora_calendar_static/event-icons/clinking-glasses.json"></aurora-lottie>
+          </span>
+        `;
+      }
+      const avatarContent = (person?.person || event.person || "?").charAt(0).toUpperCase();
+      return html`
+        <span class="event-avatar" style="--event-avatar-color: ${color}" title="${event.person}">
+          ${avatarContent}
+          ${person?.avatar ? html`<img src="${person.avatar}" alt="${event.person}" @error=${retryImgOnError} />` : nothing}
+        </span>
+      `;
+    }
+
+    // Stacked avatars: render in reverse order so the primary person ends up
+    // rightmost (last in DOM = highest stacking order in normal flow).
+    const reversed = [...attendees].reverse();
+    const spans = reversed.map((name, i) => {
+      const p = this.persons.find((p) => p.person === name);
+      const color = p?.color || event.color;
+      return html`
+        <span
+          class="event-avatar"
+          style="--event-avatar-color:${color};${i > 0 ? "margin-left:-24px;" : ""}"
+          title="${name}"
+        >
+          ${(name || "?").charAt(0).toUpperCase()}
+          ${p?.avatar ? html`<img src="${p.avatar}" alt="${name}" @error=${retryImgOnError} />` : nothing}
+        </span>
+      `;
+    });
+    return html`<div class="avatar-stack">${spans}</div>`;
   }
 
   private _openWeatherMoreInfo(event: Event): void {
@@ -681,6 +722,24 @@ export class AuroraCalendarMonth extends LitElement {
       opacity: 0.38;
     }
 
+    .avatar-stack {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .avatar-stack .event-avatar {
+      position: relative;
+      right: auto;
+      top: auto;
+      transform: none;
+      flex-shrink: 0;
+    }
+
     .event-avatar {
       position: absolute;
       right: 6px;
@@ -714,6 +773,13 @@ export class AuroraCalendarMonth extends LitElement {
     .event-avatar ha-icon {
       --mdc-icon-size: 26px;
       color: #fff;
+    }
+
+    .lottie-avatar aurora-lottie {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
     }
 
     .weather-pill {

@@ -14,6 +14,7 @@ from homeassistant.helpers.event import async_call_later
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
+from . import calendar_api
 from .coordinator import AuroraCalendarCoordinator
 
 # Unique-id suffixes that were removed in the architecture refactor (layer 3→4).
@@ -37,6 +38,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _cleanup_stale_entities(hass, entry)
 
     await _register_card_resources(hass)
+
+    calendar_api.async_setup(hass)
 
     coordinator = AuroraCalendarCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()

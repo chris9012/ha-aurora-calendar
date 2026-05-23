@@ -128,6 +128,8 @@ export interface CalendarEvent {
   uid?: string;
   recurrenceId?: string;
   canDragEdit?: boolean;
+  hasSelfAttendee?: boolean; // true = calendar owner is an explicit attendee (guest copy); false = home calendar
+  attendees?: string[];      // all persons sharing this event (populated after deduplication)
 }
 
 export interface WeatherDay {
@@ -190,4 +192,10 @@ export interface HassCalendarEventRaw {
   location?: string;
   start: { dateTime?: string; date?: string };
   end:   { dateTime?: string; date?: string };
+}
+
+// Shape returned by the aurora_calendar/get_events WebSocket command
+export interface WsCalendarEventRaw extends HassCalendarEventRaw {
+  entity_id: string;
+  has_self_attendee?: boolean;
 }

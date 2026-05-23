@@ -38,6 +38,7 @@ import { fetchDailyWeather } from "./weather-utils.js";
 import { localeFromHass, t, viewModeLabel } from "./localize.js";
 import "./calendar-month.js";
 import "./calendar-week-box.js";
+import "./aurora-lottie.js";
 import "./calendar-time.js";
 
 const VIEW_ICONS: Record<ViewMode, string> = {
@@ -310,6 +311,10 @@ export class AuroraCalendarCard extends LitElement {
 
   private get _weatherEntity(): string {
     return String(this._configAttrs.weather_entity ?? "");
+  }
+
+  private get _occasionsEntityId(): string {
+    return String(this._configAttrs.occasions_entity_id ?? "");
   }
 
   private get _weatherFetchKey(): string {
@@ -1700,6 +1705,7 @@ export class AuroraCalendarCard extends LitElement {
                       .weatherEntity=${this._weatherEntity}
                       .locale=${locale}
                       .persons=${persons}
+                      .occasionsEntityId=${this._occasionsEntityId}
                       @aurora-event-open=${this._handleEventOpen}
                     ></aurora-calendar-month>
                   `
@@ -1718,6 +1724,7 @@ export class AuroraCalendarCard extends LitElement {
                       .weatherEntity=${this._weatherEntity}
                       .locale=${locale}
                       .persons=${persons}
+                      .occasionsEntityId=${this._occasionsEntityId}
                       @aurora-event-open=${this._handleEventOpen}
                     ></aurora-calendar-month>
                   `
@@ -1737,6 +1744,7 @@ export class AuroraCalendarCard extends LitElement {
                       .weatherEntity=${this._weatherEntity}
                       .locale=${locale}
                       .persons=${persons}
+                      .occasionsEntityId=${this._occasionsEntityId}
                       @aurora-event-open=${this._handleEventOpen}
                     ></aurora-calendar-month>
                   `
@@ -1750,6 +1758,7 @@ export class AuroraCalendarCard extends LitElement {
                       .weatherEntity=${this._weatherEntity}
                       .locale=${locale}
                       .persons=${persons}
+                      .occasionsEntityId=${this._occasionsEntityId}
                       @week-empty-click=${this._handleWeekEmptyClick}
                       @aurora-event-open=${this._handleEventOpen}
                     ></aurora-calendar-week-box>
